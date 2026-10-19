@@ -14,7 +14,7 @@
     favorite:
       '<div class="favorite-content">BTCUSDT <em>+2.34%</em> ETHUSDT <em>+1.82%</em> NEARUSDT <em>+0.93%</em></div>',
     subheader:
-      '<div class="symbol-content"><span><b id="lab-symbol"></b><small>PERPETUAL · DEMO</small></span><strong id="lab-price"></strong><span>24h 涨跌<small>+2.34% · 示例</small></span><span>标记价格<small id="lab-mark"></small></span></div>',
+      '<div class="symbol-content"><span><b id="lab-symbol"></b><small>PERPETUAL · DEMO</small></span><strong id="lab-price" data-studio-price></strong><span>24h 涨跌<small>+2.34% · 示例</small></span><span>标记价格<small id="lab-mark"></small></span></div>',
     chart:
       '<div class="chart-widget-root"><div class="lab-chart-tabs"><span>15m　1H　4H　1D</span><span>TRADING VIEW / DEMO</span></div><svg class="lab-chart" viewBox="0 0 840 440" preserveAspectRatio="none" role="img" aria-label="示例价格蜡烛图"></svg><div class="lab-chart-label">BINANCE STUDIO / SIMULATED CHART / NO LIVE ORDERS</div></div>',
     orderbook:
@@ -77,6 +77,20 @@
     ).replace(/,/g, "");
   }
   updateSymbol(symbol);
+  let priceTick = 0;
+  setInterval(() => {
+    if (document.hidden) return;
+    const current = document.getElementById("demo-symbol").value;
+    const value = Number(prices[current].replace(/,/g, ""));
+    const digits = current === "NEARUSDT" ? 4 : 2;
+    const offset = [0, 1, 3, 2, 1, -1, 0][++priceTick % 7] / 10 ** digits;
+    document.getElementById("lab-price").textContent = (
+      value + offset
+    ).toLocaleString("en-US", {
+      minimumFractionDigits: digits,
+      maximumFractionDigits: digits,
+    });
+  }, 1500);
   for (const [type, sign] of [
     ["asks", 1],
     ["bids", -1],

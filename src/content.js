@@ -10,6 +10,7 @@
     style,
     queued = false,
     cockpit = null,
+    priceEffects = null,
     signature = "";
   let panels = {},
     layoutRoot = null,
@@ -198,6 +199,8 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
     layout = effective.layout;
     room = effective.room;
     if (!settings.enabled) {
+      priceEffects?.destroy();
+      priceEffects = null;
       cockpit?.destroy();
       cockpit = null;
       for (const animation of animations) animation.cancel();
@@ -220,6 +223,20 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
       (document.head || document.documentElement).append(style);
     }
     detectPanels();
+    if (route && document.body) {
+      if (!priceEffects)
+        priceEffects = new StudioPriceEffects({
+          identity: () => W.routeContext(location.href)?.key,
+        });
+      if (changed) priceEffects.reset();
+      priceEffects.update(
+        settings,
+        panels.subheader || document.querySelector(".ticker-wrap"),
+      );
+    } else {
+      priceEffects?.destroy();
+      priceEffects = null;
+    }
     if (route)
       for (const area of B.dockedAreas(settings)) {
         const panel = panels[area];
@@ -305,6 +322,8 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
           node.nodeType === 1 &&
           node !== style &&
           node.id !== "bst-cockpit" &&
+          node.id !== "bst-price-effects" &&
+          node.id !== "bst-price-effects-style" &&
           !node.closest?.("#bst-cockpit"),
       ),
     );
@@ -347,7 +366,10 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
   }, 700);
   window.addEventListener("popstate", schedule);
   window.addEventListener("pageshow", schedule);
-  window.addEventListener("pagehide", () => cockpit?.stopFeed());
+  window.addEventListener("pagehide", () => {
+    cockpit?.stopFeed();
+    priceEffects?.reset();
+  });
   if (B.isExtension())
     chrome.runtime.onMessage.addListener((message, _sender, respond) => {
       if (message?.type === "bst:status")

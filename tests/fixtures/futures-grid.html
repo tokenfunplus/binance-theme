@@ -70,7 +70,44 @@
           position: absolute;
         "
       >
-        <div style="grid-area: subheader">Market subheader</div>
+        <div style="grid-area: subheader">
+          <div
+            class="ticker-wrap"
+            style="
+              display: flex;
+              align-items: center;
+              gap: 24px;
+              padding: 4px 16px;
+            "
+          >
+            <strong>NEARUSDT 永续</strong>
+            <div class="draggableHandle">
+              <div
+                id="ticker-price"
+                class="text-6 font-medium text-Buy"
+                style="
+                  font-size: 24px;
+                  line-height: 28px;
+                  color: var(--color-Buy, #2ebd85);
+                "
+              >
+                4.913
+              </div>
+              <div
+                style="
+                  display: flex;
+                  gap: 4px;
+                  font-size: 12px;
+                  color: var(--color-Buy, #2ebd85);
+                "
+              >
+                <div id="ticker-change">0.268</div>
+                <div id="ticker-percent">+5.76%</div>
+              </div>
+            </div>
+            <div>标记价格 <span id="ticker-mark">4.912</span></div>
+          </div>
+        </div>
       </div>
       <div
         class="react-grid-item react-draggable react-resizable"

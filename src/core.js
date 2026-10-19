@@ -153,6 +153,12 @@
     dockEdge: "right",
     depthEnabled: false,
     skin: "classic",
+    priceEffectsEnabled: true,
+    priceTransition: "roll",
+    priceGlow: "pulse",
+    priceDuration: 240,
+    priceIntensity: "soft",
+    priceChangedOnly: true,
   });
   const ENUMS = {
     preset: Object.keys(PRESETS),
@@ -162,6 +168,9 @@
     layout: ["native", "mirror", "focus", "custom"],
     dockEdge: ["left", "right"],
     skin: ["classic", "obsidian", "radar", "arctic", "mecha"],
+    priceTransition: ["none", "roll", "flip", "slide", "bounce"],
+    priceGlow: ["none", "pulse", "neon", "scan", "glitch"],
+    priceIntensity: ["soft", "medium", "strong"],
   };
   const RANGES = {
     fontSize: [12, 18],
@@ -171,6 +180,7 @@
     orderformWidth: [260, 400],
     positionsHeight: [240, 600],
     panelGap: [0, 12],
+    priceDuration: [120, 600],
   };
   const FONTS = {
     system:

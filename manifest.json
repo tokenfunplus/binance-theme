@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Binance Studio · 币安主题与布局",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "用空间布局编辑器、边缘 Dock、聚光灯、交易对房间、风格皮肤和动态盘口，打造自己的币安交易驾驶舱。",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "activeTab"],
@@ -28,6 +28,7 @@
         "src/core.js",
         "src/workspace.js",
         "src/market.js",
+        "src/price-effects.js",
         "src/cockpit.js",
         "src/content.js"
       ],

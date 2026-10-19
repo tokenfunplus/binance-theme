@@ -17,7 +17,11 @@
 <img src="docs/screenshots/chrome-popup.png" alt="Binance Studio Chrome 插件弹窗：九套主题、专注模式、启用开关与定制工作台入口" width="350">
 
 <details>
-<summary>查看交易驾驶舱与空间编辑器</summary>
+<summary>查看价格动效、交易驾驶舱与空间编辑器</summary>
+
+**价格动效控制台**：数字切换与光效自由组合，支持 NEARUSDT 模拟涨跌预览。
+
+![价格动效设置：三套快捷组合、数字切换方式、变化光效、时长与模拟报价预览](docs/screenshots/price-options.png)
 
 **Radar 驾驶舱**：场景切换、边缘 Dock 与动态盘口地形。截图来自模拟体验页，价格、深度与成交均为示例数据。
 
@@ -31,7 +35,7 @@
 
 ## 安装
 
-1. 下载本项目，或运行 `npm run build` 后解压 `dist/binance-studio-0.2.0.zip`。
+1. 下载本项目，或运行 `npm run build` 后解压 `dist/binance-studio-0.3.0.zip`。
 2. Chrome 打开 `chrome://extensions`，Edge 打开 `edge://extensions`。
 3. 开启「开发者模式」，选择「加载已解压的扩展程序」，选择包含 `manifest.json` 的文件夹（项目根目录或 `dist/binance-studio`）。
 4. 打开或**刷新**币安页面。在浏览器工具栏固定 Binance Studio 图标。
@@ -40,6 +44,17 @@
 更改设置会自动保存并同步到已注入扩展的币安标签页。关闭「启用扩展」会移除注入样式及面板标记，恢复网站原生显示。
 
 已安装旧版时，在扩展管理页点击 Binance Studio 的「重新加载」，再刷新币安标签页。
+
+## v0.3 价格动效
+
+打开定制工作台，选择「价格动效」。默认启用**机械滚轮 + 涨跌脉冲**，也可以一键选择「机械驾驶舱」或「赛博雷达」，再自由组合：
+
+- **数字切换**：机械滚轮、翻页时钟、方向滑入、弹性跳字，或即时切换。
+- **变化光效**：涨跌脉冲、霓虹余辉、雷达扫描、故障闪切，或关闭光效。
+- **细节设置**：轻柔 / 适中 / 鲜明三档强度、120–600 ms 时长、仅变化位动效、独立启用开关。
+- **模拟预览**：与截图对应的 NEARUSDT 主价格区域，可手动模拟上涨 / 下跌，或自动演示；不连接真实行情。
+
+适配已核对的合约页 `.ticker-wrap` 主价格；涨跌额与百分比只使用较轻的光效。价格由原网页更新，动效以短暂的显示层呈现，保留原有文本节点、内联样式与交易输入。连续报价直接替换当前动画，缺失报价会清除显示层；切换交易对后重新建立基准，尊重系统「减少动态效果」，后台隐藏及暂停时恢复静态显示。房间保存与配置导入导出包含动效设置。
 
 ## v0.2 驾驶舱
 
@@ -102,6 +117,8 @@ npm run test:browser
 
 浏览器测试实际加载未打包的 Manifest V3 扩展，验证原有功能以及空间编辑、场景过渡、减少动态效果、Dock、聚光灯、交易对房间、SPA 切换、行情重连 / 关闭和模拟体验页。Binance 域名请求返回 `tests/fixtures` 中的重建页面；行情测试在临时测试浏览器的扩展隔离环境中注入 WebSocket 替身，使用公开流格式的固定数据，不访问账户、不提交交易。截图与测试结果在 `output/verification`。`npm run test:cockpit` 可单独运行驾驶舱验证。
 
+`npm run test:prices` 单独验证价格动效：真实加载扩展，使用按只读观察重建的合约报价结构，覆盖动效组合、连续跳价、缺失报价、节点替换、交易对切换、减少动态效果、独立关闭、全局暂停及响应式预览。后台恢复逻辑使用模拟的可见性事件验证。
+
 可选环境变量 `BROWSER_EXECUTABLE` 指定支持扩展侧载的 Chromium / Chrome for Testing。较新版本的正式 Chrome 已限制命令行侧载，建议使用 Playwright Chromium。
 
 ## 文件结构
@@ -117,6 +134,8 @@ src/background.js       默认设置初始化与多标签页串行写入
 src/workspace.js        空间画布、交易对房间、v2 配置与校验
 src/cockpit.js          页内控制条、编辑器、Dock 与聚光灯
 src/market.js           公开行情客户端与深度 / 成交 Canvas
+src/price-effects.js    主价格数字切换、变化光效与生命周期
+src/price-options.js    价格动效设置与模拟报价预览
 src/experiments.js      驾驶舱设置与房间列表
 src/lab.js              模拟交易页
 src/options.js          工作台交互

@@ -1,0 +1,187 @@
+.price-combos {
+  display: grid;
+  gap: 9px;
+  margin-top: 16px;
+}
+.price-combos button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 12px;
+  border: 1px solid #e6e9df;
+  border-radius: 7px;
+  background: #fafbf7;
+  text-align: left;
+  color: #424b38;
+}
+.price-combos button[aria-pressed="true"] {
+  border-color: #b19a52;
+  background: #f5f2e6;
+  box-shadow: inset 3px 0 #b19a52;
+}
+.price-combos i {
+  width: 30px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  font: 22px monospace;
+  color: #9c8c51;
+  background: #eeeedf;
+  border-radius: 5px;
+}
+.price-combos strong,
+.price-combos small {
+  display: block;
+}
+.price-combos strong {
+  font-size: 11px;
+  font-weight: 550;
+}
+.price-combos small {
+  margin-top: 4px;
+  font-size: 9px;
+  color: #949c86;
+}
+.price-combos b {
+  margin-left: auto;
+  color: #a2a88f;
+  font-weight: 400;
+}
+.price-specimen {
+  background: var(--quote-bg, #101827);
+  color: var(--quote-text, #e1e9f5);
+  border: 1px solid var(--quote-line, #27364c);
+  border-radius: 10px;
+  margin-bottom: 18px;
+  overflow: hidden;
+}
+.price-specimen-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--quote-line);
+  color: var(--quote-muted);
+  font-size: 9px;
+}
+.price-specimen-heading > span:first-child {
+  letter-spacing: 2px;
+  font-family: monospace;
+}
+.price-ticker {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 42px 24px;
+  flex-wrap: wrap;
+}
+.price-symbol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.price-symbol i {
+  display: grid;
+  place-items: center;
+  background: var(--quote-text);
+  color: var(--quote-bg);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font: 22px sans-serif;
+  font-style: normal;
+}
+.price-symbol strong {
+  font:
+    500 23px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  letter-spacing: -0.5px;
+}
+.price-symbol > span {
+  border: 1px solid var(--quote-line);
+  background: var(--quote-surface);
+  color: var(--quote-muted);
+  font-size: 11px;
+  border-radius: 3px;
+  padding: 3px 5px;
+}
+.price-quote {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.price-quote > strong {
+  font-size: 38px;
+  line-height: 1.2;
+  font-weight: 500;
+  display: block;
+}
+.price-quote > div {
+  display: flex;
+  gap: 7px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.price-mark {
+  display: grid;
+  gap: 7px;
+  margin-left: auto;
+  color: var(--quote-muted);
+  font-size: 10px;
+}
+.price-mark strong {
+  color: var(--quote-text);
+  font: 500 18px monospace;
+}
+.price-specimen-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 16px 22px;
+  border-top: 1px solid var(--quote-line);
+  background: var(--quote-surface);
+}
+.price-specimen-footer > div {
+  display: flex;
+  gap: 8px;
+}
+.price-specimen-footer button {
+  background: transparent;
+  color: var(--quote-text);
+  border: 1px solid var(--quote-line);
+  border-radius: 5px;
+  padding: 8px 10px;
+  font-size: 10px;
+}
+.price-specimen-footer label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  color: var(--quote-muted);
+}
+.price-specimen > p {
+  margin: 0;
+  padding: 12px 22px;
+  font-size: 9px;
+  color: var(--quote-muted);
+}
+@media (max-width: 650px) {
+  .price-ticker {
+    gap: 20px;
+    padding: 28px 18px;
+  }
+  .price-mark {
+    display: none;
+  }
+  .price-symbol strong {
+    font-size: 19px;
+  }
+  .price-specimen-heading {
+    font-size: 8px;
+    padding-inline: 16px;
+  }
+}

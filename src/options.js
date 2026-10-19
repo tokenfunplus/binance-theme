@@ -8,6 +8,11 @@
   let initialized = false;
   const saveState = document.getElementById("save-state");
   const titles = {
+    prices: [
+      "价格动效",
+      "让每一跳价格，都有节奏",
+      "数字切换与光效自由组合，找到你的行情反馈。",
+    ],
     cockpit: [
       "私人驾驶舱",
       "给交易空间，一个新维度",
@@ -80,7 +85,7 @@
           `${((Number(value) - Number(input.min)) / (Number(input.max) - Number(input.min))) * 100}%`,
         );
         document.getElementById(`${input.id}-output`).textContent =
-          `${value} px`;
+          `${value}${input.dataset.unit || " px"}`;
       }
     });
     document.querySelectorAll("[data-hex]").forEach((input) => {
@@ -107,6 +112,7 @@
       input.title = forced ? "专注模式已隐藏此区域，切换布局后可单独调整" : "";
     });
     StudioPreview.render(settings);
+    StudioPricePreview.render(settings);
     document
       .querySelectorAll("[data-skin]")
       .forEach((button) =>
@@ -179,6 +185,17 @@
     }),
   );
   document
+    .querySelectorAll("[data-price-combo]")
+    .forEach((button) =>
+      button.addEventListener("click", () =>
+        commit({
+          priceEffectsEnabled: true,
+          priceTransition: button.dataset.transition,
+          priceGlow: button.dataset.glow,
+        }).catch(() => {}),
+      ),
+    );
+  document
     .querySelectorAll("[data-choice]")
     .forEach((button) =>
       button.addEventListener("click", () =>
@@ -214,6 +231,7 @@
     title.append(dot);
     document.getElementById("page-subtitle").textContent = titles[view][2];
     document.title = `${titles[view][0]} · Binance Studio`;
+    StudioPricePreview.setView(view);
     if (updateHash) history.replaceState(null, "", `#${view}`);
   }
   document
