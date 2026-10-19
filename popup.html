@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Binance Studio</title>
+    <link rel="stylesheet" href="styles/studio.css" />
+    <link rel="stylesheet" href="styles/popup.css" />
+    <script defer src="src/core.js"></script>
+    <script defer src="src/popup.js"></script>
+  </head>
+  <body class="popup-body">
+    <header class="popup-header">
+      <a class="brand" id="brand-options" href="options.html" target="_blank"
+        ><img src="assets/icon.svg" width="31" height="31" alt="" /><span
+          >binance<span class="brand-studio"
+            >studio<span class="brand-dot">.</span></span
+          ></span
+        ></a
+      ><label class="switch"
+        ><input
+          id="popup-enabled"
+          type="checkbox"
+          aria-label="启用 Binance Studio"
+          disabled /><span></span
+      ></label>
+    </header>
+    <main class="popup-main">
+      <div class="popup-eyebrow">YOUR MARKET. YOUR SPACE.</div>
+      <h1>换个基调，继续专注<span>.</span></h1>
+      <p class="popup-subtitle">每一个交易日，都有自己的风格。</p>
+      <div
+        id="popup-themes"
+        class="popup-themes"
+        role="group"
+        aria-label="快速切换主题"
+      ></div>
+      <div class="popup-selected">
+        <span id="selected-theme">经典石墨</span
+        ><span id="popup-save" role="status">正在读取…</span>
+      </div>
+      <div class="popup-focus">
+        <div>
+          <strong>专注模式</strong>
+          <p>收起市场、最近成交与公告</p>
+        </div>
+        <label class="switch"
+          ><input
+            id="popup-focus"
+            type="checkbox"
+            aria-label="启用专注模式"
+            disabled /><span></span
+        ></label>
+      </div>
+      <div class="popup-site-status" id="site-status" role="status">
+        <span class="local-dot"></span>
+        <p>正在检查当前页面…</p>
+      </div>
+      <div id="adapter-status" class="adapter-status" hidden></div>
+      <button id="open-options" class="button button-dark popup-settings">
+        打开定制工作台<svg>
+          <use href="assets/ui.svg#arrow-up-right" />
+        </svg></button
+      ><a
+        id="open-binance-popup"
+        class="popup-binance"
+        href="https://www.binance.com/zh-CN/trade/BTC_USDT?type=spot"
+        target="_blank"
+        rel="noopener noreferrer"
+        hidden
+        >打开币安交易页 ↗</a
+      >
+    </main>
+    <footer class="popup-footer">
+      <span>LOCAL FIRST · 仅本机保存</span><span>v0.1.0</span>
+    </footer>
+  </body>
+</html>

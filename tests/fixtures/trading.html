@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Binance adapter fixture — not the live site</title>
+    <style>
+      :root {
+        --color-Bg: #ffffff;
+        --color-PrimaryText: #222222;
+        --color-CardBg: #eeeeee;
+        --color-Buy: #008800;
+        --color-Sell: #cc0000;
+      }
+      body {
+        margin: 0;
+        background: var(--color-Bg);
+        color: var(--color-PrimaryText);
+        font: 14px sans-serif;
+      }
+      header {
+        padding: 12px;
+      }
+      .trading-layout {
+        display: grid;
+        grid-template-columns: 1fr 260px;
+        gap: 8px;
+      }
+      .trading-chart {
+        height: 360px;
+        background: var(--color-CardBg);
+      }
+      .orderbook {
+        background: var(--color-CardBg);
+      }
+      .bn-web-button {
+        border: 0;
+        background: var(--color-Buy);
+        padding: 12px;
+        border-radius: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>ADAPTER TEST FIXTURE</header>
+    <div class="announcement-bar">Announcement</div>
+    <main>
+      <div class="trading-layout">
+        <section class="trading-chart">Chart</section>
+        <section class="orderbook"><div role="row">67,432.80</div></section>
+        <section class="recent-trades">Recent trades</section>
+        <section class="market-list">Markets</section>
+        <section class="orderform">
+          <input id="amount" value="0.1" /><button
+            class="bn-web-button"
+            id="buy"
+          >
+            Buy BTC
+          </button>
+        </section>
+      </div>
+      <div class="bn-web-table">
+        <table>
+          <tbody>
+            <tr>
+              <td>BTC</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </body>
+</html>
