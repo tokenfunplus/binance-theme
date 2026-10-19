@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Binance Studio · 驾驶舱模拟体验</title>
+    <link rel="icon" href="assets/icon.svg" />
+    <link rel="stylesheet" href="styles/lab.css" />
+    <script defer src="src/core.js"></script>
+    <script defer src="src/workspace.js"></script>
+    <script defer src="src/market.js"></script>
+    <script defer src="src/cockpit.js"></script>
+    <script defer src="src/lab.js"></script>
+    <script defer src="src/content.js"></script>
+  </head>
+  <body>
+    <header class="lab-top">
+      <a href="options.html#cockpit"
+        >✳ BINANCE STUDIO <span>/ COCKPIT LAB</span></a
+      >
+      <div>
+        <span>模拟行情 · 配置会保存到插件</span
+        ><button id="demo-radar">试试 Radar + 动态盘口</button
+        ><select id="demo-symbol" aria-label="演示交易对">
+          <option>BTCUSDT</option>
+          <option>ETHUSDT</option>
+          <option>NEARUSDT</option>
+        </select>
+      </div>
+    </header>
+    <div class="lab-intro">
+      <span>THE MARKET IS YOUR CANVAS.</span>
+      <h1>欢迎来到你的交易驾驶舱。</h1>
+      <p>
+        顶部悬浮条切换场景，点「空间」拖动面板，按住 Alt 聚焦。右侧 Dock
+        悬停预览，点击固定展开。
+      </p>
+    </div>
+    <main><div class="react-grid-layout layout" id="demo-grid"></div></main>
+    <footer class="lab-footer">
+      此页面独立模拟交易界面，不连接账户。价格、深度和成交均为模拟数据。
+    </footer>
+  </body>
+</html>

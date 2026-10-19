@@ -7,8 +7,11 @@
     <title>Binance Studio · 你的交易主场</title>
     <link rel="icon" href="assets/icon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles/studio.css" />
+    <link rel="stylesheet" href="styles/experiments.css" />
     <script defer src="src/core.js"></script>
+    <script defer src="src/workspace.js"></script>
     <script defer src="src/preview.js"></script>
+    <script defer src="src/experiments.js"></script>
     <script defer src="src/options.js"></script>
   </head>
   <body>
@@ -58,7 +61,7 @@
           </svg>
         </button>
         <div class="version-line">
-          <span class="local-dot"></span>LOCAL FIRST<span>v0.1.0</span>
+          <span class="local-dot"></span>LOCAL FIRST<span>v0.2.0</span>
         </div>
       </div>
     </aside>
@@ -485,7 +488,7 @@
                 <label class="import-zone" for="import-file"
                   ><svg><use href="assets/ui.svg#upload" /></svg
                   ><strong>选择配置文件</strong
-                  ><span>.json 格式，最大 64 KB</span></label
+                  ><span>.json 格式，最大 1 MB</span></label
                 ><input
                   id="import-file"
                   type="file"
@@ -509,7 +512,7 @@
                   <strong>你的设置，只在你的设备上。</strong>
                   <p>
                     不需要账户或 API
-                    Key，不发送网络请求，不收集交易数据。插件只调整页面样式与面板显示。
+                    Key，不收集账户或交易记录。动态盘口仅在开启时连接币安公开行情，其余配置保存在本机。
                   </p>
                 </div>
               </div>

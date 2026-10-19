@@ -8,6 +8,11 @@
   let initialized = false;
   const saveState = document.getElementById("save-state");
   const titles = {
+    cockpit: [
+      "私人驾驶舱",
+      "给交易空间，一个新维度",
+      "空间编辑、边缘 Dock 与动态盘口，都在你的指尖。",
+    ],
     appearance: [
       "外观主题",
       "交易空间，由你定义",
@@ -102,9 +107,17 @@
       input.title = forced ? "专注模式已隐藏此区域，切换布局后可单独调整" : "";
     });
     StudioPreview.render(settings);
+    document
+      .querySelectorAll("[data-skin]")
+      .forEach((button) =>
+        button.setAttribute(
+          "aria-pressed",
+          String(button.dataset.skin === settings.skin),
+        ),
+      );
   }
 
-  function commit(patch) {
+  function commit(patch, desktop) {
     if (!initialized) return Promise.resolve();
     settings = B.normalize({ ...settings, ...patch });
     render();
@@ -113,7 +126,19 @@
     setSaveState("正在保存…");
     const operation = saveQueue
       .catch(() => {})
-      .then(() => B.writeSettings(snapshot));
+      .then(async () => {
+        if (!desktop) return B.writeSettings(snapshot);
+        if (B.isExtension())
+          await chrome.storage.local.set({
+            [B.STORAGE_KEY]: snapshot,
+            [StudioWorkspace.KEY]: StudioWorkspace.normalizeDesktop(desktop),
+          });
+        else {
+          await StudioWorkspace.write(desktop);
+          await B.writeSettings(snapshot);
+        }
+        return snapshot;
+      });
     saveQueue = operation
       .then(() => {
         pending--;
@@ -171,7 +196,7 @@
     );
 
   function setView(view, updateHash = true) {
-    if (!Object.hasOwn(titles, view)) view = "layout";
+    if (!Object.hasOwn(titles, view)) view = "cockpit";
     document.querySelectorAll("[data-view]").forEach((button) => {
       const active = button.dataset.view === view;
       button.classList.toggle("active", active);
@@ -199,7 +224,23 @@
   window.addEventListener("hashchange", () =>
     setView(location.hash.slice(1), false),
   );
-  setView(location.hash.slice(1) || "layout", false);
+  setView(location.hash.slice(1) || "cockpit", false);
+  document
+    .querySelectorAll("[data-skin]")
+    .forEach((button) =>
+      button.addEventListener("click", () =>
+        commit(B.skinSettings(button.dataset.skin, settings)).catch(() => {}),
+      ),
+    );
+  document
+    .querySelectorAll("[data-workspace-scene]")
+    .forEach((button) =>
+      button.addEventListener("click", () =>
+        commit(
+          StudioWorkspace.SCENES[button.dataset.workspaceScene].patch,
+        ).catch(() => {}),
+      ),
+    );
 
   document.querySelectorAll("[data-quick-focus]").forEach((button) =>
     button.addEventListener("click", () => {
@@ -229,20 +270,25 @@
       .catch(() => {});
   });
 
-  document.getElementById("export-button").addEventListener("click", () => {
-    const blob = new Blob([B.exportProfile(settings)], {
-      type: "application/json",
+  document
+    .getElementById("export-button")
+    .addEventListener("click", async () => {
+      const blob = new Blob(
+        [StudioWorkspace.exportBundle(settings, await StudioWorkspace.read())],
+        {
+          type: "application/json",
+        },
+      );
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `binance-studio-${settings.preset}-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.append(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      notify("配置已导出，随时带走你的风格。");
     });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = url;
-    anchor.download = `binance-studio-${settings.preset}-${new Date().toISOString().slice(0, 10)}.json`;
-    document.body.append(anchor);
-    anchor.click();
-    anchor.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    notify("配置已导出，随时带走你的风格。");
-  });
   document
     .getElementById("import-file")
     .addEventListener("change", async (event) => {
@@ -251,10 +297,10 @@
       if (!file) return;
       const status = document.getElementById("import-status");
       try {
-        if (file.size > 65536)
-          throw new Error("配置文件过大，请选择 64 KB 以内的 JSON 文件。");
-        const next = B.importProfile(await file.text());
-        await commit(next);
+        if (file.size > 1048576)
+          throw new Error("配置文件过大，请选择 1 MB 以内的 JSON 文件。");
+        const next = StudioWorkspace.importBundle(await file.text());
+        await commit(next.settings, next.desktop);
         status.classList.remove("error");
         status.textContent = "配置已导入并保存。你的空间回来了。";
         notify("配置已导入并应用。");

@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Binance Studio · 币安主题与布局",
-  "version": "0.1.0",
-  "description": "用你喜欢的配色、字体、间距和布局，打造自己的币安交易空间。所有设置保存在本机。",
+  "version": "0.2.0",
+  "description": "用空间布局编辑器、边缘 Dock、聚光灯、交易对房间、风格皮肤和动态盘口，打造自己的币安交易驾驶舱。",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "activeTab"],
   "background": { "service_worker": "src/background.js" },
@@ -24,11 +24,17 @@
   "content_scripts": [
     {
       "matches": ["https://www.binance.com/*", "https://binance.com/*"],
-      "js": ["src/core.js", "src/content.js"],
+      "js": [
+        "src/core.js",
+        "src/workspace.js",
+        "src/market.js",
+        "src/cockpit.js",
+        "src/content.js"
+      ],
       "run_at": "document_start"
     }
   ],
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'none'"
+    "extension_pages": "script-src 'self'; object-src 'none'; connect-src wss://fstream.binance.com wss://stream.binance.com:9443"
   }
 }

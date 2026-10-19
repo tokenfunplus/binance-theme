@@ -4,6 +4,7 @@ const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
 const manifest = require("../manifest.json");
 const files = [
+  "lab.html",
   "manifest.json",
   "options.html",
   "popup.html",

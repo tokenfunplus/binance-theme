@@ -1,0 +1,382 @@
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  background: var(--color-Bg, #101820);
+  color: var(--color-PrimaryText, #dfeae6);
+  font:
+    13px -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    "PingFang SC",
+    sans-serif;
+}
+button,
+select,
+input {
+  font: inherit;
+}
+button {
+  cursor: pointer;
+}
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--color-PrimaryYellow, #b9d887);
+  outline-offset: 3px;
+}
+.lab-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 25px;
+  border-bottom: 1px solid var(--color-Line, #2b3d37);
+  height: 57px;
+  background: var(--color-CardBg, #17261e);
+}
+.lab-top a {
+  text-decoration: none;
+  font: 11px monospace;
+  letter-spacing: 1.2px;
+  color: var(--color-PrimaryText, #c6e5cc);
+}
+.lab-top a > span {
+  color: var(--color-SecondaryText, #7c9a85);
+  font-size: 8px;
+}
+.lab-top > div {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.lab-top > div > span {
+  font-size: 9px;
+  color: var(--color-SecondaryText, #8da68e);
+}
+.lab-top select,
+.lab-top button {
+  border: 1px solid var(--color-Line, #3c5544);
+  background: var(--color-Input, #203326);
+  color: var(--color-PrimaryText, #cde3cd);
+  font-size: 10px;
+  border-radius: 5px;
+  padding: 6px 10px;
+}
+.lab-intro {
+  padding: 88px 25px 25px;
+}
+.lab-intro > span {
+  font: 8px monospace;
+  letter-spacing: 2px;
+  color: var(--color-PrimaryYellow, #b6d397);
+}
+.lab-intro h1 {
+  font-size: 23px;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+  margin: 9px 0;
+}
+.lab-intro p {
+  font-size: 10px;
+  line-height: 1.8;
+  color: var(--color-SecondaryText, #829e8a);
+}
+main {
+  padding: 0 24px;
+}
+.react-grid-layout {
+  position: relative;
+  width: 100%;
+  height: 1130px;
+}
+.react-grid-item {
+  box-sizing: border-box;
+  padding: 2px;
+}
+.RemovableCard {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: var(--color-BasicBg, #17221e);
+  border: 1px solid var(--color-Line, #2a3b30);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.native-content {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+.card-title {
+  font-size: 11px;
+  color: var(--color-PrimaryText, #c7e1cc);
+  font-weight: 500;
+  padding: 13px 15px;
+  margin: 0;
+  border-bottom: 1px solid var(--color-Line, #2a3b30);
+}
+.favorite-content {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 100%;
+  padding: 0 15px;
+  font: 10px monospace;
+  color: var(--color-SecondaryText, #819d87);
+}
+.favorite-content em {
+  font-style: normal;
+  color: var(--color-Buy, #6cc18d);
+}
+.symbol-content {
+  display: flex;
+  align-items: center;
+  gap: 35px;
+  height: 100%;
+  padding: 0 16px;
+}
+.symbol-content strong {
+  font: 500 18px monospace;
+  color: var(--color-Buy, #8bcea3);
+}
+.symbol-content small {
+  font-size: 9px;
+  display: block;
+  color: var(--color-SecondaryText, #7b9c83);
+  margin-top: 3px;
+}
+.symbol-content > span {
+  font-size: 11px;
+}
+.lab-chart-tabs {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 15px;
+  font: 9px monospace;
+  color: var(--color-SecondaryText, #8ab094);
+  border-bottom: 1px solid var(--color-Line, #2a3b30);
+}
+.chart-widget-root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.lab-chart {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  display: block;
+}
+.lab-chart .grid {
+  stroke: var(--color-Line, #2c4835);
+  stroke-width: 0.6;
+  stroke-dasharray: 3 4;
+}
+.lab-chart text {
+  fill: var(--color-SecondaryText, #89a791);
+  font: 9px monospace;
+}
+.lab-chart .up {
+  fill: var(--color-Buy, #7acb95);
+  stroke: var(--color-Buy, #7acb95);
+}
+.lab-chart .down {
+  fill: var(--color-Sell, #dc9f83);
+  stroke: var(--color-Sell, #dc9f83);
+}
+.lab-chart-label {
+  font: 8px monospace;
+  color: var(--color-SecondaryText, #729c7e);
+  padding: 10px 15px;
+}
+.book-labels,
+.book-row {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: 8px;
+  align-items: center;
+  font: 10px monospace;
+  padding: 6px 14px;
+  white-space: nowrap;
+}
+.book-labels {
+  font-size: 8px;
+  color: var(--color-SecondaryText, #7f9c86);
+  padding-block: 12px;
+}
+.book-row > span:not(:first-child) {
+  text-align: right;
+}
+.book-row.sell {
+  color: var(--color-Sell, #d48f7c);
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--color-Sell, #d48f7c) 10%, transparent) var(--depth),
+    transparent var(--depth)
+  );
+}
+.book-row.buy {
+  color: var(--color-Buy, #83c99a);
+  background: linear-gradient(
+    to left,
+    color-mix(in srgb, var(--color-Buy, #83c99a) 10%, transparent) var(--depth),
+    transparent var(--depth)
+  );
+}
+.book-price {
+  font: 18px monospace;
+  color: var(--color-Buy, #8dd5a1);
+  padding: 15px;
+}
+.tradelist {
+  padding: 10px 0;
+}
+.trade-list-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 14px;
+  font: 9px monospace;
+  color: var(--color-SecondaryText, #8ba392);
+}
+.trade-list-item > span:first-child {
+  color: var(--color-Buy, #82bf95);
+}
+.trade-list-item:nth-child(odd) > span:first-child {
+  color: var(--color-Sell, #d39681);
+}
+.demo-form {
+  padding: 17px;
+}
+.demo-mode {
+  display: flex;
+  justify-content: space-between;
+  color: var(--color-SecondaryText, #859e8b);
+  font-size: 9px;
+  padding-bottom: 20px;
+}
+.demo-tabs {
+  display: flex;
+  gap: 20px;
+  font-size: 11px;
+  padding-bottom: 22px;
+  color: var(--color-PrimaryYellow, #d5cf92);
+}
+.demo-form label {
+  display: block;
+  color: var(--color-SecondaryText, #81a18a);
+  font-size: 10px;
+  margin-bottom: 8px;
+}
+.demo-form input {
+  display: block;
+  width: 100%;
+  background: var(--color-Input, #293c2e);
+  border: 1px solid var(--color-Line, #405b44);
+  color: var(--color-PrimaryText, #c7dece);
+  padding: 13px;
+  border-radius: 6px;
+  margin-bottom: 18px;
+  font: 14px monospace;
+}
+.form-checks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--color-SecondaryText, #91a395);
+  padding: 20px 0;
+}
+.demo-buy,
+.demo-sell {
+  width: 100%;
+  border: 0;
+  border-radius: 5px;
+  padding: 13px;
+  font-size: 11px;
+  background: var(--color-Buy, #7ccf96);
+  color: var(--color-Bg, #18211c);
+  margin-bottom: 12px;
+  cursor: default;
+}
+.demo-sell {
+  background: var(--color-Sell, #db9a87);
+}
+.demo-form > p {
+  font-size: 9px;
+  color: var(--color-SecondaryText, #8ca590);
+  text-align: center;
+}
+.positions-tabs {
+  display: flex;
+  gap: 30px;
+  padding: 15px;
+  border-bottom: 1px solid var(--color-Line, #2e4736);
+  font-size: 10px;
+}
+.positions-tabs > span:first-child {
+  color: var(--color-PrimaryYellow, #d0d490);
+}
+.positions-empty {
+  display: grid;
+  place-items: center;
+  height: calc(100% - 50px);
+  min-height: 100px;
+  font-size: 10px;
+  color: var(--color-SecondaryText, #839989);
+}
+.margin-content {
+  padding: 18px;
+}
+.margin-content > strong {
+  font: 24px monospace;
+  color: var(--color-Buy, #8bca9e);
+}
+.margin-content p {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--color-SecondaryText, #81a18b);
+  padding: 10px 0;
+}
+.lab-footer {
+  padding: 25px;
+  text-align: center;
+  font-size: 9px;
+  color: var(--color-SecondaryText, #7d9584);
+}
+@media (max-width: 800px) {
+  .lab-top > div > span,
+  .lab-top a > span {
+    display: none;
+  }
+  .lab-top {
+    padding-inline: 14px;
+    gap: 8px;
+  }
+  .lab-top > div {
+    gap: 7px;
+  }
+  .lab-top button {
+    font-size: 8px;
+  }
+  .lab-intro {
+    padding: 74px 14px 22px;
+  }
+  .lab-intro h1 {
+    font-size: 21px;
+  }
+  main {
+    padding: 0 12px;
+  }
+  .symbol-content {
+    gap: 15px;
+  }
+  .symbol-content strong {
+    font-size: 14px;
+  }
+  .book-row {
+    font-size: 8px;
+  }
+}

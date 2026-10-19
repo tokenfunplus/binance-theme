@@ -188,6 +188,7 @@
       `${{ compact: 2, comfortable: 4, relaxed: 6 }[s.density]}px`,
     );
     el.dataset.layout = s.layout;
+    el.dataset.skin = s.skin;
     el.dataset.noBook = String(s.hideOrderbook);
     el.dataset.noTrades = String(s.hideTrades || s.layout === "focus");
     el.dataset.noSidebar = String(

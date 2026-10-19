@@ -1,13 +1,14 @@
 {
   "name": "binance-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Local-first Binance theme and layout browser extension",
   "scripts": {
     "dev": "node scripts/serve.cjs",
     "test": "node --test tests/*.test.cjs",
     "build": "node scripts/build.cjs",
-    "test:browser": "node tests/browser.cjs"
+    "test:browser": "node tests/browser.cjs && node tests/cockpit-browser.cjs",
+    "test:cockpit": "node tests/cockpit-browser.cjs"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

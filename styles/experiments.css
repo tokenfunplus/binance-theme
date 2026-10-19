@@ -1,0 +1,249 @@
+.cockpit-intro {
+  position: relative;
+  overflow: hidden;
+  background: #14251f;
+  border: 1px solid #2d493b;
+  color: #d5ead9;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 18px;
+}
+.cockpit-intro > span {
+  position: relative;
+  font-size: 7px;
+  font-family: monospace;
+  letter-spacing: 1.8px;
+  color: #87ac91;
+}
+.cockpit-intro h2 {
+  position: relative;
+  font-size: 24px;
+  font-weight: 550;
+  line-height: 1.6;
+  letter-spacing: 1px;
+  margin: 17px 0 12px;
+}
+.cockpit-intro p {
+  position: relative;
+  font-size: 10px;
+  line-height: 2;
+  color: #94ad99;
+}
+.cockpit-intro .button {
+  position: relative;
+  background: #c3d997;
+  color: #263721;
+  margin-top: 24px;
+  width: 100%;
+  justify-content: space-between;
+}
+.cockpit-intro > small {
+  display: block;
+  position: relative;
+  text-align: center;
+  font-size: 8px;
+  color: #6f8f7b;
+  margin-top: 9px;
+}
+.cockpit-intro-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#80b79209 1px, transparent 1px),
+    linear-gradient(90deg, #80b79209 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(100deg, transparent, #000);
+  transform: perspective(200px) rotateY(-10deg) scale(1.3);
+}
+.skin-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+.skin-card {
+  text-align: left;
+  background: #101115;
+  border: 1px solid #30383b;
+  border-radius: 7px;
+  color: #e9e3ce;
+  padding: 11px;
+  min-height: 90px;
+  position: relative;
+  overflow: hidden;
+}
+.skin-card > i {
+  display: block;
+  width: 27px;
+  height: 2px;
+  background: #d7b76a;
+  box-shadow: 0 8px 0 #d7b76a40;
+  margin: 4px 0 18px;
+}
+.skin-card > strong {
+  display: block;
+  font: 11px monospace;
+  font-weight: 500;
+}
+.skin-card > small {
+  display: block;
+  font-size: 8px;
+  opacity: 0.5;
+  margin-top: 4px;
+}
+.skin-card[data-skin="radar"] {
+  background: repeating-linear-gradient(
+    0deg,
+    #0a1a12 0,
+    #0a1a12 9px,
+    #17291b 10px
+  );
+  color: #adf7bc;
+  border-color: #2d5335;
+}
+.skin-card[data-skin="radar"] > i {
+  background: #a4ffbd;
+  box-shadow:
+    0 0 11px #80e6a0,
+    0 8px 0 #a4ffbd40;
+}
+.skin-card[data-skin="arctic"] {
+  background: linear-gradient(120deg, #173244, #2e536a);
+  border-color: #60859a;
+  color: #d9f5ff;
+}
+.skin-card[data-skin="arctic"] > i {
+  background: #9fe5fa;
+  box-shadow: 0 8px 0 #9fe5fa50;
+}
+.skin-card[data-skin="mecha"] {
+  background: linear-gradient(45deg, #292c2c, #202328);
+  border-color: #6b644b;
+  color: #f7d68b;
+  border-radius: 0;
+}
+.skin-card[data-skin="mecha"] > i {
+  background: #e9c372;
+  box-shadow: 0 8px 0 #e9c37240;
+}
+.skin-card[aria-pressed="true"] {
+  outline: 2px solid #b5a064;
+  outline-offset: 2px;
+}
+.cockpit-scenes {
+  display: flex;
+  gap: 7px;
+  margin-top: 17px;
+}
+.cockpit-scenes button {
+  flex: 1;
+  background: #f4f5ee;
+  border: 1px solid #e7eadf;
+  color: #869174;
+  border-radius: 5px;
+  padding: 9px 4px;
+  font-size: 10px;
+}
+.dock-options {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 15px;
+}
+.dock-options label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #929d80;
+  font-size: 9px;
+}
+.dock-options input {
+  accent-color: #75895c;
+  width: 12px;
+  height: 12px;
+}
+.depth-art {
+  height: 90px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 19px,
+      #8ba27618 20px
+    ),
+    #14231e;
+  margin-top: 17px;
+}
+.depth-art i {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 52%;
+  height: 70px;
+  background: linear-gradient(0deg, #55c49650, #55c496a0);
+  clip-path: polygon(
+    0 0,
+    15% 10%,
+    15% 25%,
+    30% 25%,
+    30% 43%,
+    45% 43%,
+    45% 53%,
+    70% 60%,
+    85% 77%,
+    100% 100%,
+    0 100%
+  );
+}
+.depth-art i:nth-child(2) {
+  left: auto;
+  right: 0;
+  transform: scaleX(-1);
+  background: linear-gradient(0deg, #d6867f40, #d6867f90);
+  height: 58px;
+}
+.depth-art > span {
+  position: absolute;
+  top: 12px;
+  left: 15px;
+  font: 7px monospace;
+  letter-spacing: 2px;
+  color: #84a18a;
+}
+.saved-room {
+  display: flex;
+  padding: 12px 0;
+  border-bottom: 1px solid #edf0e6;
+  font-size: 10px;
+  color: #78846c;
+}
+.saved-room small {
+  display: block;
+  font: 8px monospace;
+  color: #a3ac97;
+  margin-top: 3px;
+}
+.trading-preview[data-skin="radar"] {
+  box-shadow: inset 0 0 40px #6ad69b0c;
+}
+.trading-preview[data-skin="radar"] .preview-chart {
+  background-image:
+    linear-gradient(#8cf3ac05 1px, transparent 1px),
+    linear-gradient(90deg, #8cf3ac05 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.trading-preview[data-skin="arctic"]
+  :is(.preview-chart, .preview-orderform, .preview-market-column) {
+  border-radius: 8px;
+  box-shadow: inset 0 1px #9ee5ff40;
+}
+.trading-preview[data-skin="mecha"]
+  :is(.preview-chart, .preview-orderform, .preview-orders) {
+  box-shadow: inset 2px 0 #f2c66c40;
+}
+.popup-themes {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}

@@ -5,6 +5,7 @@ const path = require("node:path");
 const os = require("node:os");
 const { createServer } = require("../scripts/serve.cjs");
 const B = require("../src/core.js");
+const W = require("../src/workspace.js");
 const root = path.resolve(__dirname, "..");
 
 (async () => {
@@ -70,7 +71,10 @@ const root = path.resolve(__dirname, "..");
     await options.waitForFunction(
       () => !document.getElementById("enabled").disabled,
     );
-    assert.equal(await options.locator("[data-preset]").count(), 6);
+    assert.equal(
+      await options.locator("[data-preset]").count(),
+      Object.keys(B.PRESETS).length,
+    );
     assert.equal(await options.locator("#preview-mode").isVisible(), false);
     await noOverflow(options, "desktop");
     await options.screenshot({
@@ -78,7 +82,7 @@ const root = path.resolve(__dirname, "..");
       fullPage: true,
     });
     passed(
-      "real Manifest V3 extension loads; all six presets and desktop preview render",
+      "real Manifest V3 extension loads; all theme presets and desktop preview render",
     );
 
     await options.locator('[data-view="appearance"]').click();
@@ -228,6 +232,11 @@ const root = path.resolve(__dirname, "..");
         getComputedStyle(document.querySelector(".react-grid-layout")).gap ===
           "8px",
     );
+    await futures.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((animation) => animation.playState !== "running"),
+    );
     assert.equal(
       Math.round(
         (await futures.locator('[data-bst-area="orderbook"]').boundingBox())
@@ -269,6 +278,11 @@ const root = path.resolve(__dirname, "..");
       await futures.locator('[data-bst-area="favorite"]').isVisible(),
       false,
     );
+    await futures.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((animation) => animation.playState !== "running"),
+    );
     const chartBox = await futures
       .locator('[data-bst-area="chart"]')
       .boundingBox();
@@ -294,6 +308,11 @@ const root = path.resolve(__dirname, "..");
       () =>
         getComputedStyle(document.querySelector(".react-grid-layout"))
           .direction === "rtl",
+    );
+    await futures.waitForFunction(() =>
+      document
+        .getAnimations()
+        .every((animation) => animation.playState !== "running"),
     );
     assert.ok(
       (await futures.locator('[data-bst-area="orderform"]').boundingBox()).x <
@@ -391,15 +410,13 @@ const root = path.resolve(__dirname, "..");
     const download = await downloadEvent;
     const exportedPath = path.join(output, "exported-profile.json");
     await download.saveAs(exportedPath);
-    const exported = B.importProfile(await fs.readFile(exportedPath, "utf8"));
-    assert.equal(exported.preset, "forest");
-    await options
-      .locator("#import-file")
-      .setInputFiles({
-        name: "invalid.json",
-        mimeType: "application/json",
-        buffer: Buffer.from('{"format":"other"}'),
-      });
+    const exported = W.importBundle(await fs.readFile(exportedPath, "utf8"));
+    assert.equal(exported.settings.preset, "forest");
+    await options.locator("#import-file").setInputFiles({
+      name: "invalid.json",
+      mimeType: "application/json",
+      buffer: Buffer.from('{"format":"other"}'),
+    });
     await options.waitForFunction(() =>
       document.getElementById("import-status").classList.contains("error"),
     );
@@ -409,13 +426,11 @@ const root = path.resolve(__dirname, "..");
       layout: "mirror",
       radius: 14,
     });
-    await options
-      .locator("#import-file")
-      .setInputFiles({
-        name: "profile.json",
-        mimeType: "application/json",
-        buffer: Buffer.from(B.exportProfile(imported)),
-      });
+    await options.locator("#import-file").setInputFiles({
+      name: "profile.json",
+      mimeType: "application/json",
+      buffer: Buffer.from(B.exportProfile(imported)),
+    });
     await waitSettings(options, {
       preset: "lavender",
       layout: "mirror",

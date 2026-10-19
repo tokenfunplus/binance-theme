@@ -81,6 +81,45 @@
       buy: "#8ad4bb",
       sell: "#ed98b0",
     },
+    radar: {
+      name: "雷达绿",
+      subtitle: "Radar",
+      bg: "#081410",
+      surface: "#0c1e17",
+      raised: "#173527",
+      text: "#d0f7dc",
+      muted: "#6c9b7f",
+      line: "#214631",
+      accent: "#8cf3ac",
+      buy: "#65e69b",
+      sell: "#f59574",
+    },
+    arctic: {
+      name: "极地冰蓝",
+      subtitle: "Arctic",
+      bg: "#101d29",
+      surface: "#172b3a",
+      raised: "#233f50",
+      text: "#e2f3fb",
+      muted: "#8baebe",
+      line: "#315467",
+      accent: "#9ee5ff",
+      buy: "#6be0c2",
+      sell: "#f49db4",
+    },
+    mecha: {
+      name: "机甲琥珀",
+      subtitle: "Mecha",
+      bg: "#191c21",
+      surface: "#22272e",
+      raised: "#333940",
+      text: "#ede8da",
+      muted: "#a8a494",
+      line: "#44473f",
+      accent: "#f2c66c",
+      buy: "#85d4b1",
+      sell: "#ed8c7e",
+    },
   });
   const DEFAULTS = Object.freeze({
     enabled: true,
@@ -103,13 +142,26 @@
     hideTrades: false,
     hideMarkets: false,
     hideAnnouncements: false,
+    cockpitEnabled: true,
+    motionEnabled: true,
+    spotlightEnabled: true,
+    roomsEnabled: false,
+    dockEnabled: false,
+    dockOrderbook: true,
+    dockTrades: true,
+    dockPositions: false,
+    dockEdge: "right",
+    depthEnabled: false,
+    skin: "classic",
   });
   const ENUMS = {
     preset: Object.keys(PRESETS),
     font: ["system", "mono"],
     density: ["compact", "comfortable", "relaxed"],
     width: ["full", "1440", "1680", "1920"],
-    layout: ["native", "mirror", "focus"],
+    layout: ["native", "mirror", "focus", "custom"],
+    dockEdge: ["left", "right"],
+    skin: ["classic", "obsidian", "radar", "arctic", "mecha"],
   };
   const RANGES = {
     fontSize: [12, 18],
@@ -207,6 +259,34 @@
     return { ...PRESETS[s.preset], accent: s.accent, buy: s.buy, sell: s.sell };
   }
 
+  function skinSettings(id, current = DEFAULTS) {
+    const skins = {
+      classic: "graphite",
+      obsidian: "obsidian",
+      radar: "radar",
+      arctic: "arctic",
+      mecha: "mecha",
+    };
+    if (!Object.hasOwn(skins, id)) return normalize(current);
+    return normalize({
+      ...presetSettings(skins[id], current),
+      skin: id,
+      font: id === "radar" || id === "mecha" ? "mono" : "system",
+      radius: id === "mecha" ? 0 : id === "arctic" ? 12 : 8,
+    });
+  }
+
+  function dockedAreas(input) {
+    const s = normalize(input);
+    return s.dockEnabled
+      ? [
+          s.dockOrderbook && "orderbook",
+          s.dockTrades && "trades",
+          s.dockPositions && "userinfo",
+        ].filter(Boolean)
+      : [];
+  }
+
   function themeCSS(input) {
     const s = normalize(input);
     if (!s.enabled) return "";
@@ -301,6 +381,7 @@ ${hidden.map((name) => `html[data-bst-enabled] [data-bst-panel="${name}"] { disp
       s.hideOrderbook ||
       s.hideTrades ||
       s.hideMarkets ||
+      dockedAreas(s).length > 0 ||
       s.chartHeight !== DEFAULTS.chartHeight ||
       s.orderbookWidth !== DEFAULTS.orderbookWidth ||
       s.orderformWidth !== DEFAULTS.orderformWidth ||
@@ -308,7 +389,7 @@ ${hidden.map((name) => `html[data-bst-enabled] [data-bst-panel="${name}"] { disp
       s.panelGap !== DEFAULTS.panelGap
     );
   }
-  function reactGridCSS(input, areas) {
+  function reactGridCSS(input, areas, customLayout = []) {
     const s = normalize(input);
     if (
       !s.enabled ||
@@ -321,6 +402,7 @@ ${hidden.map((name) => `html[data-bst-enabled] [data-bst-panel="${name}"] { disp
     )
       return "";
     const present = new Set(areas);
+    for (const area of dockedAreas(s)) present.delete(area);
     if (s.hideOrderbook) present.delete("orderbook");
     if (s.hideTrades || s.layout === "focus") present.delete("trades");
     if (s.hideMarkets || s.layout === "focus") present.delete("favorite");
@@ -392,6 +474,24 @@ ${hidden.map((name) => `html[data-bst-enabled] [data-bst-panel="${name}"] { disp
     const template = (list) =>
       list.map((row) => `"${row.join(" ")}"`).join(" ");
     const root = 'html[data-bst-enabled] [data-bst-grid="react"]';
+    if (s.layout === "custom" && customLayout.length && scope.StudioWorkspace) {
+      const packed = scope.StudioWorkspace.fitLayout(customLayout, [
+        ...present,
+      ]);
+      const height = Math.max(...packed.map((item) => item.y + item.h));
+      return `${root} { display:grid !important; grid-template-columns:repeat(12,minmax(0,1fr)) !important; grid-template-rows:repeat(${height},40px) !important; height:auto !important; gap:${s.panelGap}px !important; direction:ltr !important; }
+${root} > [data-bst-area] { position:relative !important; inset:auto !important; transform:none !important; width:auto !important; height:100% !important; min-width:0 !important; min-height:0 !important; margin:0 !important; }
+${packed.map((item) => `${root} > [data-bst-area="${item.area}"] { grid-area:auto !important; grid-column:${item.x + 1}/span ${item.w} !important; grid-row:${item.y + 1}/span ${item.h} !important; }`).join("\n")}
+${areas
+  .filter((area) => !present.has(area))
+  .map(
+    (area) =>
+      `${root} > [data-bst-area="${area}"] { display:none !important; }`,
+  )
+  .join("\n")}
+${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
+@media(max-width:760px) { ${root} { display:flex !important; flex-direction:column !important; } ${root} > [data-bst-area] { flex:none !important; min-height:180px !important; } ${packed.map((item) => `${root} > [data-bst-area="${item.area}"] { order:${item.y * 12 + item.x} !important; height:${Math.max(160, item.h * 40)}px !important; }`).join("\n")} }`;
+    }
     return `${root} { display:grid !important; grid-template-areas:${template(desktop)} !important; grid-template-columns:minmax(0,1fr) ${sidebar ? `${s.orderbookWidth}px ` : ""}${s.orderformWidth}px !important; grid-template-rows:${rows.join(" ")} !important; height:auto !important; gap:${s.panelGap}px !important; padding:0 !important; }
 ${root} > [data-bst-area] { position:relative !important; inset:auto !important; transform:none !important; width:auto !important; height:100% !important; min-width:0 !important; min-height:0 !important; margin:0 !important; }
 ${areas.map((area) => `${root} > [data-bst-area="${area}"] { grid-area:${area} !important; ${present.has(area) ? "" : "display:none !important;"} }`).join("\n")}
@@ -495,6 +595,8 @@ ${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
     normalize,
     presetSettings,
     palette,
+    skinSettings,
+    dockedAreas,
     themeCSS,
     managedLayout,
     reactGridCSS,
