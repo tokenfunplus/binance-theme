@@ -49,4 +49,9 @@ async function launchExtension({ viewport, onPageError, locale = "zh-CN" }) {
   }
 }
 
-module.exports = { launchExtension };
+async function chooseOption(scope, id, value) {
+  await scope.locator(`#${id}-control`).click();
+  await scope.locator(`#${id}-listbox [role="option"][data-value="${value}"]`).click();
+}
+
+module.exports = { launchExtension, chooseOption };

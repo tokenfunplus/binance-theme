@@ -188,4 +188,5 @@
     }
   });
   StudioI18n.bind(document);
+  StudioControls.mount(document);
 })();

@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const { launchExtension } = require("./helpers/extension.cjs");
+const { launchExtension, chooseOption } = require("./helpers/extension.cjs");
 const { createServer } = require("../scripts/serve.cjs");
 
 async function untranslated(page, shadowHost) {
@@ -11,7 +11,7 @@ async function untranslated(page, shadowHost) {
     const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
     let node;
     while ((node = walker.nextNode())) {
-      if (node.parentElement?.closest('script, style, [data-i18n-ignore], #room-label, .room-chip, option[value="zh-CN"]')) continue;
+      if (node.parentElement?.closest('script, style, [data-i18n-ignore], #room-label, .room-chip, option[value="zh-CN"], .studio-select-option[data-value="zh-CN"]')) continue;
       if (/\p{Script=Han}/u.test(node.data)) found.push(node.data.trim());
     }
     for (const element of root.querySelectorAll("[aria-label], [title], [placeholder]"))
@@ -51,10 +51,10 @@ async function untranslated(page, shadowHost) {
     await popup.waitForFunction(() => !document.getElementById("popup-language").disabled);
     assert.deepEqual(await untranslated(popup), []);
     await popup.locator("body").screenshot({ path: path.join(output, "popup-english.png") });
-    await options.locator("#language").selectOption("zh-CN");
+    await chooseOption(options, "language", "zh-CN");
     await popup.waitForFunction(() => document.documentElement.lang === "zh-CN");
     assert.equal(await popup.locator("#open-options").textContent().then((text) => text.trim()), "打开定制工作台");
-    await popup.locator("#popup-language").selectOption("en");
+    await chooseOption(popup, "popup-language", "en");
     await options.waitForFunction(() => document.documentElement.lang === "en");
     await options.reload();
     await options.waitForFunction(() => !document.getElementById("enabled").disabled);
@@ -84,14 +84,14 @@ async function untranslated(page, shadowHost) {
     await ui.locator("#room-dialog").waitFor({ state: "hidden" });
     await ui.locator("#room-open").click();
     await ui.locator("#room-note").fill("未保存的便签 <draft>");
-    await options.locator("#language").selectOption("zh-CN");
+    await chooseOption(options, "language", "zh-CN");
     await site.waitForFunction(() => document.getElementById("bst-cockpit").lang === "zh-CN");
     assert.equal(await ui.locator("#room-name").inputValue(), "订单簿");
     assert.equal(await ui.locator("#room-note").inputValue(), "未保存的便签 <draft>");
     assert.equal(await site.locator("#futures-amount").inputValue(), "0.25");
     assert.equal(await site.getAttribute("html", "lang"), siteLanguage);
     await ui.locator('[data-close="room-dialog"]').click();
-    await options.locator("#language").selectOption("en");
+    await chooseOption(options, "language", "en");
     await site.waitForFunction(() => document.getElementById("bst-cockpit").lang === "en");
     assert.equal(await ui.locator("#room-label").textContent(), "订单簿");
     assert.match(await ui.locator("#editor-open").textContent(), /Layout/);
@@ -100,14 +100,14 @@ async function untranslated(page, shadowHost) {
     assert.equal(await site.locator("#native-chinese-text").textContent(), "订单簿");
     await ui.locator('[data-tile-field="x"]').fill("1");
     const draft = await ui.locator('[data-tile-field="x"]').inputValue();
-    await options.locator("#language").selectOption("zh-CN");
+    await chooseOption(options, "language", "zh-CN");
     await site.waitForFunction(() => document.getElementById("bst-cockpit").lang === "zh-CN");
     assert.equal(await ui.locator('[data-tile-field="x"]').inputValue(), draft);
     assert.match(await ui.locator('.tile[data-area="chart"] strong').textContent(), /价格图表/);
     await ui.locator('[data-close="editor-dialog"]').click();
     passed("cockpit translates in place while preserving room names, unsaved notes, editor drafts and Binance inputs");
 
-    await options.locator("#language").selectOption("en");
+    await chooseOption(options, "language", "en");
     await options.locator('[data-view="profiles"]').click();
     await options.locator("#import-file").setInputFiles({
       name: "invalid.json", mimeType: "application/json", buffer: Buffer.from("{"),
@@ -130,13 +130,13 @@ async function untranslated(page, shadowHost) {
     const preview = await context.newPage();
     await preview.goto(`${base}/options.html`);
     await preview.waitForFunction(() => !document.getElementById("enabled").disabled);
-    await preview.locator("#language").selectOption("zh-CN");
+    await chooseOption(preview, "language", "zh-CN");
     await preview.reload();
     await preview.waitForFunction(() => document.documentElement.lang === "zh-CN");
     const lab = await context.newPage();
     await lab.goto(`${base}/lab.html`);
     await lab.waitForFunction(() => document.documentElement.lang === "zh-CN");
-    await preview.locator("#language").selectOption("en");
+    await chooseOption(preview, "language", "en");
     await lab.waitForFunction(() => document.documentElement.lang === "en");
     assert.deepEqual(await untranslated(lab), []);
     assert.equal(await lab.locator("#lab-order-amount").inputValue(), "0.1");

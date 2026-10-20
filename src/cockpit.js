@@ -13,6 +13,9 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
 .editor[open]{display:flex;flex-direction:column}.editor-header,.editor-toolbar,.editor-footer{flex-shrink:0}.editor-stage{height:auto;flex:1;min-height:0}.tile[data-compact=true]{padding:4px 9px}.tile[data-compact=true]>small,.tile[data-compact=true]>.tile-art{display:none}@media(max-width:600px){.editor-selected{display:none}}
 @media(max-width:600px){.bar:not(.compact){flex-wrap:wrap;justify-content:center;width:calc(100vw - 24px);gap:4px}.bar.compact{width:auto}.scenes{justify-content:center}.editor-toolbar>span{font-size:8px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}dialog::backdrop{backdrop-filter:none}}
+:host{--control-bg:var(--surface);--control-menu-bg:var(--surface);--control-ink:var(--ink);--control-muted:var(--muted);--control-border:#ffffff26;--control-hover:#ffffff50;--control-hover-bg:#ffffff0d;--control-accent:var(--accent);--control-selected-ink:var(--accent);--control-selected-bg:color-mix(in srgb,var(--accent) 13%,var(--surface));--control-selected-hover:color-mix(in srgb,var(--accent) 20%,var(--surface))}
+.bar .studio-select{width:98px;flex:0 0 98px;--control-height:30px;--control-font-size:10px;--control-radius:7px}.bar .studio-select-trigger{padding:6px 8px;gap:7px}.bar .studio-select-chevron{width:12px;height:12px}
+@media(max-width:800px){.bar .studio-select{display:none}}
 `;
   class Cockpit {
     constructor({ commit, saveLayout, saveRoom, deleteRoom }) {
@@ -35,6 +38,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
 <dialog class="editor" id="editor-dialog"><div class="editor-header"><div><div class="eyebrow">SPATIAL WORKSPACE EDITOR</div><h2>把空间，放在你想要的位置。</h2></div><div class="actions"><button data-close="editor-dialog">取消</button><button class="primary" id="editor-save">应用布局 ↗</button></div></div><div class="editor-toolbar"><span>12 列磁吸网格 · 拖动移动 · 右下角缩放 · 等大卡片可交换</span><button id="editor-reset">重置画布</button></div><div class="editor-stage"><div class="editor-grid" role="group" aria-label="空间布局画布"></div></div><div class="editor-footer"><span class="editor-selected">选择一个面板</span><label class="tile-field">X<input data-tile-field="x" type="number" min="0" max="11" aria-label="面板 X 坐标"></label><label class="tile-field">Y<input data-tile-field="y" type="number" min="0" max="40" aria-label="面板 Y 坐标"></label><label class="tile-field">宽<input data-tile-field="w" type="number" min="1" max="12" aria-label="面板宽度格数"></label><label class="tile-field">高<input data-tile-field="h" type="number" min="1" max="24" aria-label="面板高度格数"></label></div></dialog>`;
       (document.body || document.documentElement).append(this.host);
       this.stopLocaleWatch = I.bind(this.shadow);
+      this.controls = StudioControls.mount(this.shadow);
       this.$ = (selector) => this.shadow.querySelector(selector);
       this.depthView = new M.DepthView({
         depthCanvas: this.$(".depth-canvas"),
@@ -173,6 +177,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         }),
       );
       this.onKeyDown = (event) => {
+        if (event.composedPath().some((node) => node.matches?.(".studio-select-trigger"))) return;
         if (event.key === "Escape") {
           this.endSpotlight();
           this.closePeek();
@@ -248,6 +253,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         ? context.room.name || "PAIR SPACE"
         : "GLOBAL SPACE";
       this.$("#skin-select").value = context.settings.skin;
+      this.controls.refresh();
       this.$("#dock-toggle").setAttribute(
         "aria-pressed",
         String(context.settings.dockEnabled),
@@ -588,6 +594,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
       });
     }
     destroy() {
+      this.controls.destroy();
       this.stopLocaleWatch();
       for (const [panel, handlers] of this.peekBound || []) {
         panel.removeEventListener("pointerenter", handlers.enter);

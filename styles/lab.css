@@ -380,3 +380,15 @@ main {
     font-size: 8px;
   }
 }
+.lab-top .studio-select { width: 120px; --control-height: 32px; --control-font-size: 10px; }
+.lab-top .studio-select-trigger { padding: 6px 10px; }
+body {
+  --control-bg: #1f2a32;
+  --control-menu-bg: #1f2a32;
+  --control-ink: #e2ebee;
+  --control-muted: #9aaeba;
+  --control-border: #40505d;
+  --control-hover-bg: #2c3c48;
+  --control-selected-ink: #f0d18b;
+  --control-selected-bg: #473e29;
+}

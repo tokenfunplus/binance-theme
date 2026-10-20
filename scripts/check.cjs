@@ -19,6 +19,11 @@ function checkScriptOrder(scripts, label) {
     ["src/storage.js", "src/core.js"],
     ["src/locales/en.js", "src/i18n.js"],
     ["src/i18n.js", "src/core.js"],
+    ["src/i18n.js", "src/controls.js"],
+    ["src/controls.js", "src/cockpit.js"],
+    ["src/controls.js", "src/options.js"],
+    ["src/color-picker.js", "src/options.js"],
+    ["src/controls.js", "src/popup.js"],
     ["src/core.js", "src/workspace.js"],
   ]) {
     if (!scripts.includes(consumer)) continue;

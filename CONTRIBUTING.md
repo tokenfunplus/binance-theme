@@ -26,6 +26,7 @@ Load the repository folder through your browser's **Load unpacked** action. Relo
 - Keep the global pause authoritative over pair-room settings. Preserve original page nodes and order input values when changing layout or effects.
 - Scripts use ordered browser globals with CommonJS exports for tests. Update every affected HTML, manifest and service-worker entry point when adding a dependency. See [architecture](docs/ARCHITECTURE.md).
 - Add English translations in `src/locales/en.js` for new Mandarin source messages. Bind only extension-owned static templates with `StudioI18n.bind`; use `StudioI18n.t` for dynamic messages and placeholders. Never translate user-provided room names or notes. Run `npm run test:i18n` after changing UI copy.
+- Use `StudioControls.mount` for new dropdowns and `StudioColorPicker.mount` for color controls. Keep hidden source inputs as the settings model, call `refresh()` after programmatic changes, and destroy controllers when removing a UI. Run `npm run test:controls` for interaction changes.
 - Update both [English](README.md) and [Chinese](README.zh-CN.md) documentation when changing user-visible behavior or setup instructions.
 
 ### Verify a change
@@ -37,7 +38,7 @@ npm run build
 npm run test:browser
 ```
 
-Add targeted regression coverage for behavior changes. For UI or lifecycle changes, run the relevant browser suite; all four suites run in CI. Browser tests load an isolated unpacked extension, serve reconstructed Binance fixtures, and use simulated market packets. Their screenshots and results are written to `output/verification/`, which is ignored by Git.
+Add targeted regression coverage for behavior changes. For UI or lifecycle changes, run the relevant browser suite; all five suites run in CI. Browser tests load an isolated unpacked extension, serve reconstructed Binance fixtures, and use simulated market packets. Their screenshots and results are written to `output/verification/`, which is ignored by Git.
 
 In your pull request, explain the problem, the resulting behavior and which checks you ran. Include before/after screenshots for visible UI changes. Report whether a compatibility issue was observed on a live page or only a fixture. When sharing a configuration, remove private room notes first.
 
@@ -78,6 +79,7 @@ npm run dev
 - 全局暂停始终优先于房间设置。布局和动效改动应保留原页面节点与下单输入值。
 - 脚本通过有序加载的浏览器全局对象协作，并通过 CommonJS 导出供测试使用。添加依赖时同步更新 HTML、manifest 与后台入口，详见[架构说明](docs/ARCHITECTURE.md)。
 - 新增中文界面文字时，在 `src/locales/en.js` 补齐英文翻译。静态扩展模板使用 `StudioI18n.bind`，动态文字与参数使用 `StudioI18n.t`。不要翻译用户填写的房间名或便签；界面文案改动后运行 `npm run test:i18n`。
+- 下拉框使用 `StudioControls.mount`，颜色控件使用 `StudioColorPicker.mount`。保留隐藏的源输入作为设置数据模型；程序更新后调用 `refresh()`，移除界面时销毁控制器。交互改动后运行 `npm run test:controls`。
 - 更改用户可见行为或开发步骤时，同步维护[英文](README.md)和[中文](README.zh-CN.md)文档。
 
 ### 验证改动
@@ -89,7 +91,7 @@ npm run build
 npm run test:browser
 ```
 
-行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部四组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
+行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部五组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
 
 Pull Request 请说明问题、最终行为与已执行的验证；界面改动附上前后对比截图。适配问题请区分真实页面观察与测试页面结果。分享配置前请移除私人房间便签。
 

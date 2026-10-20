@@ -55,6 +55,10 @@ Use the **Language / 语言** selector in the toolbar popup or the top bar of th
 
 The choice is saved locally and updates open extension pages and the trading cockpit. It applies to controls, previews, help, validation messages, tooltips and accessibility labels. Language is a global preference, so pair rooms cannot override it. Your Binance page language, room names and private notes stay as entered. The standalone preview saves its own language preference separately.
 
+## UI and controls
+
+The console pairs a graphite sidebar with neutral cards and amber accents. The compact toolbar popup uses the same palette on a dark surface. Dropdowns and color selection use custom panels, including keyboard navigation, typeahead, visible focus states and viewport-aware placement. Color panels offer a preset palette, hue/saturation/lightness controls and validated HEX input. The controls work in both languages and respect reduced motion.
+
 ## Features
 
 ### Themes and layout
@@ -129,8 +133,9 @@ npm run test:browser
 | `npm run dev` | Local preview on `127.0.0.1:4173`; override with `PORT` |
 | `npm run check` | Check JavaScript syntax, resource references, script order and versions |
 | `npm test` | Unit tests for settings, storage, layouts, rooms, prices and market parsing |
-| `npm run test:browser` | Run all four browser suites with the actual unpacked extension |
+| `npm run test:browser` | Run all five browser suites with the actual unpacked extension |
 | `npm run test:cockpit` | Cockpit, layout, rooms and market lifecycle tests |
+| `npm run test:controls` | Custom dropdowns, color panels, keyboard behavior and popup sizing |
 | `npm run test:i18n` | Bilingual UI, language persistence, cross-page sync and input preservation |
 | `npm run test:prices` | Price effects and responsive preview tests |
 | `npm run build` | Create a clean unpacked extension and versioned ZIP in `dist/` |
@@ -150,6 +155,8 @@ popup.html              Toolbar popup
 lab.html                Simulated trading cockpit
 src/storage.js          Shared extension / preview storage boundary
 src/i18n.js             Locale selection and scoped UI translation
+src/controls.js         Accessible custom dropdowns and menu positioning
+src/color-picker.js     Custom color palette, HSL controls and HEX validation
 src/locales/en.js       English translations keyed by Mandarin source text
 _locales/               Browser-native extension name and description
 src/core.js             Settings validation, themes and profile format
@@ -165,7 +172,7 @@ src/options.js          Settings console interactions
 src/popup.js            Quick settings and active-page status
 src/preview.js          Simulated trading preview
 src/lab.js              Simulated trading page
-styles/                 Console, popup and preview styles
+styles/                 Console, popup and preview styles; ui.css contains shell tokens
 assets/                 Local icons
 scripts/                Preview server, source checks and release packaging
 tests/                  Unit tests, browser suites, helpers and fixtures

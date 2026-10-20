@@ -11,16 +11,17 @@ Binance Studio is a Manifest V3 browser extension written in plain JavaScript, H
 | Entry point | Responsibility | Load order |
 | --- | --- | --- |
 | `src/background.js` | Initialize defaults; serialize trading-tab workspace mutations | Imports storage → English catalog → i18n → core → workspace |
-| Manifest content scripts | Detect panels, apply styles and run the trading cockpit | storage → English catalog → i18n → core → workspace → market → price-effects → cockpit → content |
-| `options.html` | Settings, profiles and simulated previews | storage → English catalog → i18n → core → workspace → price-effects → preview → experiments → price-options → options |
-| `popup.html` | Quick themes, focus mode and active-page inspection | storage → English catalog → i18n → core → popup |
-| `lab.html` | Simulated trading page using the same cockpit | storage → English catalog → i18n → core → workspace → market → price-effects → cockpit → lab → content |
+| Manifest content scripts | Detect panels, apply styles and run the trading cockpit | storage → English catalog → i18n → core → workspace → market → price-effects → controls → cockpit → content |
+| `options.html` | Settings, profiles and simulated previews | storage → English catalog → i18n → controls → color-picker → core → workspace → price-effects → preview → experiments → price-options → options |
+| `popup.html` | Quick themes, focus mode and active-page inspection | storage → English catalog → i18n → controls → core → popup |
+| `lab.html` | Simulated trading page using the same cockpit | storage → English catalog → i18n → controls → core → workspace → market → price-effects → cockpit → lab → content |
 
-Shared runtime modules expose APIs on `globalThis`: `StudioStorage`, `StudioI18n`, `BinanceStudio`, `StudioWorkspace`, `StudioMarket`, `StudioPriceEffects` and `StudioCockpit`. Modules needed by Node tests also export through CommonJS. Keep browser script order explicit; `npm run check` verifies storage/core/workspace order and local entry-point resources.
+Shared runtime modules expose APIs on `globalThis`: `StudioStorage`, `StudioI18n`, `StudioControls`, `StudioColorPicker`, `BinanceStudio`, `StudioWorkspace`, `StudioMarket`, `StudioPriceEffects` and `StudioCockpit`. Modules needed by Node tests also export through CommonJS. Keep browser script order explicit; `npm run check` verifies storage/core/workspace order and local entry-point resources.
 
 ### Module boundaries
 
 - `i18n.js` resolves `auto`, `en` and `zh-CN` and translates only extension-owned static templates. Mandarin source messages are keys in `src/locales/en.js`; dynamic labels use `StudioI18n.t(message, values)`. Static bindings update text nodes and accessibility attributes in place, never scanning the Binance document or rewriting inputs and user notes. `_locales/` supplies browser-native extension metadata. Language stays global across pair rooms.
+- `controls.js` mounts custom select-only comboboxes over hidden source selects, retaining existing settings events. It owns keyboard/typeahead behavior, listbox portals, viewport placement and teardown. `color-picker.js` supplies a custom palette and HSL/HEX panel over hidden color inputs. Controllers refresh after UI renders and language changes. `styles/ui.css` owns the extension shell palette without changing the simulated trading theme.
 - `storage.js` handles raw JSON persistence and change subscriptions across Chrome storage and standalone `localStorage`. `createStorage(environment)` lets unit tests supply storage and event APIs without a browser.
 - `core.js` owns settings defaults, normalization, theme palettes, selectors, generated CSS and v1 profile validation. Its existing `readSettings`, `writeSettings` and `watchSettings` APIs normalize values around the shared storage boundary.
 - `workspace.js` owns grid geometry, route identity, room resolution, v2 bundle validation and workspace mutations. `save(settings, desktop?)` normalizes and persists settings with an optional desktop in one Chrome storage call. Omitting the desktop preserves saved rooms and layouts.
@@ -40,7 +41,7 @@ Room settings override appearance and layout for a recognized spot/futures pair,
 
 ### Verification and packaging
 
-Unit tests run with Node's test runner. The four browser suites share `tests/helpers/extension.cjs`, which creates an isolated browser profile, launches the extension, observes page errors and cleans up after success or failure. Binance navigation is fulfilled by fixtures and market packets are simulated. These tests validate known DOM structures rather than all live Binance pages.
+Unit tests run with Node's test runner. The five browser suites share `tests/helpers/extension.cjs`, which creates an isolated browser profile, launches the extension, observes page errors and cleans up after success or failure. Binance navigation is fulfilled by fixtures and market packets are simulated. These tests validate known DOM structures rather than all live Binance pages.
 
 `scripts/check.cjs` checks syntax, resources, dependency order and version agreement. `scripts/build.cjs` builds an unpacked extension and ZIP from the same staged files, includes bilingual documentation and the license, and prevents deleted source files from lingering in the previous unpacked build. Development dependencies, tests, local output and repository metadata are excluded from the release.
 
@@ -53,16 +54,17 @@ Binance Studio 使用原生 JavaScript、HTML 与 CSS，遵循 Manifest V3。源
 | 入口 | 职责 | 加载顺序 |
 | --- | --- | --- |
 | `src/background.js` | 初始化默认值，串行处理交易标签页工作区操作 | storage → English catalog → i18n → core → workspace |
-| Manifest 内容脚本 | 识别面板、应用样式、运行驾驶舱 | storage → English catalog → i18n → core → workspace → market → price-effects → cockpit → content |
-| `options.html` | 设置、配置管理与模拟预览 | storage → English catalog → i18n → core → workspace → price-effects → preview → experiments → price-options → options |
-| `popup.html` | 快捷主题、专注模式与页面状态 | storage → English catalog → i18n → core → popup |
-| `lab.html` | 复用驾驶舱的模拟交易页 | storage → English catalog → i18n → core → workspace → market → price-effects → cockpit → lab → content |
+| Manifest 内容脚本 | 识别面板、应用样式、运行驾驶舱 | storage → English catalog → i18n → core → workspace → market → price-effects → controls → cockpit → content |
+| `options.html` | 设置、配置管理与模拟预览 | storage → English catalog → i18n → controls → color-picker → core → workspace → price-effects → preview → experiments → price-options → options |
+| `popup.html` | 快捷主题、专注模式与页面状态 | storage → English catalog → i18n → controls → core → popup |
+| `lab.html` | 复用驾驶舱的模拟交易页 | storage → English catalog → i18n → controls → core → workspace → market → price-effects → cockpit → lab → content |
 
 共享模块在 `globalThis` 暴露 API；供 Node 测试使用的模块也支持 CommonJS 导出。新增依赖需要显式调整脚本顺序。`npm run check` 检查 storage/core/workspace 的依赖顺序与本地入口资源。
 
 ### 模块职责
 
 - `i18n.js` 处理 `auto`、`en` 与 `zh-CN`，仅翻译扩展自身的静态模板。`src/locales/en.js` 以中文原文为键；动态文字调用 `StudioI18n.t(message, values)`。绑定原地更新文本节点与无障碍属性，不扫描币安页面、不改写输入值和用户便签。`_locales/` 提供浏览器原生扩展信息翻译；语言设置始终使用全局偏好。
+- `controls.js` 在隐藏源 select 上构建自定义下拉框，保留已有设置事件，统一键盘查找、菜单层、边界定位和销毁。`color-picker.js` 提供色板与 HSL／HEX 弹层。界面渲染与语言变化后刷新控制器；`styles/ui.css` 管理插件外壳配色，不改变交易预览主题。
 - `storage.js` 统一 Chrome 存储与独立预览 `localStorage` 的原始 JSON 读写和事件监听。`createStorage(environment)` 允许测试注入存储与事件接口。
 - `core.js` 管理设置默认值、校验、配色、选择器、CSS 与 v1 配置格式。原有设置存储 API 保留，并在存储边界前后执行规范化。
 - `workspace.js` 管理网格几何、路由、房间解析、v2 配置与工作区操作。`save(settings, desktop?)` 规范化并保存数据，在 Chrome 中用一次写入保存两个键；省略 desktop 时保留原有房间和布局。
@@ -82,6 +84,6 @@ Binance Studio 使用原生 JavaScript、HTML 与 CSS，遵循 Manifest V3。源
 
 ### 验证与打包
 
-单元测试使用 Node 内置测试运行器。四组浏览器测试共用 `tests/helpers/extension.cjs`，统一创建独立配置目录、加载扩展、收集页面错误，并在成功或失败后清理。币安页面由测试页面替代，行情使用模拟包；覆盖范围是已知页面结构。
+单元测试使用 Node 内置测试运行器。五组浏览器测试共用 `tests/helpers/extension.cjs`，统一创建独立配置目录、加载扩展、收集页面错误，并在成功或失败后清理。币安页面由测试页面替代，行情使用模拟包；覆盖范围是已知页面结构。
 
 `scripts/check.cjs` 检查语法、资源、依赖顺序与版本一致性。`scripts/build.cjs` 从相同临时文件生成未打包目录和 ZIP，包含双语文档和许可证，并避免旧输出残留已删除源码。发布包不包含开发依赖、测试、本地产物与仓库元数据。

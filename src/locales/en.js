@@ -3,6 +3,14 @@
 
   // Mandarin source messages are stable keys for the English catalog.
   const messages = Object.freeze({
+  "自定义颜色": "Custom color",
+  "关闭颜色选择器": "Close color picker",
+  "常用配色": "Color palette",
+  "应用颜色": "Apply color",
+  "十六进制颜色": "Hex color",
+  "色相": "Hue",
+  "饱和度": "Saturation",
+  "亮度": "Lightness",
   "+2.34% · 示例": "+2.34% · Demo",
   ".json 格式，最大 1 MB": ".json files, up to 1 MB",
   "12 列磁吸网格 · 拖动移动 · 右下角缩放 · 等大卡片可交换": "12-column snap grid · Drag to move · Resize at the corner · Swap equal-size cards",

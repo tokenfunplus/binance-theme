@@ -3,6 +3,8 @@
   const B = BinanceStudio;
   const I = StudioI18n;
   I.bind(document);
+  const controls = StudioControls.mount(document);
+  const colors = StudioColorPicker.mount(document);
   let settings = B.normalize();
   let pending = 0;
   let saveQueue = Promise.resolve();
@@ -124,6 +126,8 @@
     });
     StudioPreview.render(settings);
     StudioPricePreview.render(settings);
+    controls.refresh();
+    colors.refresh();
     document
       .querySelectorAll("[data-skin]")
       .forEach((button) =>
@@ -212,6 +216,8 @@
     );
 
   function setView(view, updateHash = true) {
+    controls.close();
+    colors.close();
     if (!Object.hasOwn(titles, view)) view = "cockpit";
     document.querySelectorAll("[data-view]").forEach((button) => {
       const active = button.dataset.view === view;

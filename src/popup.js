@@ -3,6 +3,7 @@
   const B = BinanceStudio;
   const I = StudioI18n;
   I.bind(document);
+  const controls = StudioControls.mount(document);
   let settings = B.normalize();
   let ready = false;
   let queue = Promise.resolve();
@@ -44,6 +45,7 @@
     });
     document.getElementById("selected-theme").textContent =
       `${I.t(B.PRESETS[settings.preset].name)}${settings.enabled ? "" : I.t(" · 已暂停")}`;
+    controls.refresh();
   }
   function commit(patch) {
     if (!ready) return;

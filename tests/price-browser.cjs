@@ -1,4 +1,4 @@
-const { launchExtension } = require("./helpers/extension.cjs");
+const { launchExtension, chooseOption } = require("./helpers/extension.cjs");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
@@ -57,7 +57,7 @@ const root = path.resolve(__dirname, "..");
         await options.locator("#" + key).setChecked(value);
       else if (typeof value === "number")
         await options.locator("#" + key).fill(String(value));
-      else await options.locator("#" + key).selectOption(value);
+      else await chooseOption(options, key, value);
       await options.waitForFunction(
         ({ key, value, storageKey }) =>
           new Promise((resolve) =>

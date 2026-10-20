@@ -1,4 +1,4 @@
-const { launchExtension } = require("./helpers/extension.cjs");
+const { launchExtension, chooseOption } = require("./helpers/extension.cjs");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises"),
   path = require("node:path");
@@ -125,7 +125,7 @@ const root = path.resolve(__dirname, "..");
     };
     await installSocketFixture();
     assert.equal((await readConnections()).length, 0);
-    await ui.locator("#skin-select").selectOption("radar");
+    await chooseOption(ui, "skin-select", "radar");
     await page.waitForFunction(
       () => document.documentElement.dataset.bstSkin === "radar",
     );
@@ -311,7 +311,7 @@ const root = path.resolve(__dirname, "..");
       dispatchEvent(new PopStateEvent("popstate"));
     });
     await ui.locator("#symbol-label").filter({ hasText: "ETHUSDT" }).waitFor();
-    await ui.locator("#skin-select").selectOption("arctic");
+    await chooseOption(ui, "skin-select", "arctic");
     await ui.locator("#room-open").click();
     await ui.locator("#room-name").fill("ETH 冰蓝空间");
     await ui.locator("#room-save").click();

@@ -1,4 +1,4 @@
-const { launchExtension } = require("./helpers/extension.cjs");
+const { launchExtension, chooseOption } = require("./helpers/extension.cjs");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
@@ -74,7 +74,7 @@ const root = path.resolve(__dirname, "..");
     await options.locator("#accent-hex").fill("#AABBCC");
     await options.locator("#accent-hex").press("Tab");
     await waitSettings(options, { accent: "#aabbcc" });
-    await options.locator("#font").selectOption("mono");
+    await chooseOption(options, "font", "mono");
     await options.locator("#fontSize").fill("17");
     await waitSettings(options, { font: "mono", fontSize: 17 });
     await options.reload();
@@ -376,7 +376,7 @@ const root = path.resolve(__dirname, "..");
       () =>
         getComputedStyle(
           document.getElementById("popup-enabled").nextElementSibling,
-        ).backgroundColor === "rgb(52, 59, 45)",
+        ).backgroundColor === "rgb(216, 170, 59)",
     );
     await noOverflow(popup, "popup");
     await popup.screenshot({
