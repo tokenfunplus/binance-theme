@@ -1,6 +1,7 @@
 (function (scope) {
   "use strict";
   const B = scope.BinanceStudio || require("./core.js");
+  const storage = scope.StudioStorage || require("./storage.js");
   const KEY = "binance-studio.desktop.v1";
   const LABELS = Object.freeze({
     favorite: "自选市场",
@@ -222,39 +223,26 @@
     };
   }
   async function read() {
-    if (B.isExtension())
-      return normalizeDesktop((await scope.chrome.storage.local.get(KEY))[KEY]);
-    const raw = scope.localStorage.getItem(KEY);
-    return normalizeDesktop(raw ? JSON.parse(raw) : null);
+    return normalizeDesktop(await storage.read(KEY));
   }
   async function write(input) {
     const data = normalizeDesktop(input);
-    if (B.isExtension()) await scope.chrome.storage.local.set({ [KEY]: data });
-    else scope.localStorage.setItem(KEY, JSON.stringify(data));
+    await storage.write({ [KEY]: data });
     return data;
   }
+  async function save(settingsInput, desktopInput) {
+    const settings = B.normalize(settingsInput);
+    const entries = desktopInput == null
+      ? {}
+      : { [KEY]: normalizeDesktop(desktopInput) };
+    // Chrome applies both keys in one write. Preview localStorage writes the
+    // desktop first so a settings event sees the corresponding workspace.
+    entries[B.STORAGE_KEY] = settings;
+    await storage.write(entries);
+    return settings;
+  }
   function watch(callback) {
-    if (B.isExtension()) {
-      const listener = (changes, area) => {
-        if (area === "local" && changes[KEY])
-          callback(normalizeDesktop(changes[KEY].newValue));
-      };
-      scope.chrome.storage.onChanged.addListener(listener);
-      return () => scope.chrome.storage.onChanged.removeListener(listener);
-    }
-    const listener = (event) => {
-      if (event.key === KEY || event.key === null) {
-        try {
-          callback(
-            normalizeDesktop(
-              event.newValue ? JSON.parse(event.newValue) : null,
-            ),
-          );
-        } catch {}
-      }
-    };
-    scope.addEventListener("storage", listener);
-    return () => scope.removeEventListener("storage", listener);
+    return storage.watch(KEY, (value) => callback(normalizeDesktop(value)));
   }
   function exportBundle(settings, desktop) {
     return JSON.stringify(
@@ -369,6 +357,7 @@
     resolve,
     read,
     write,
+    save,
     watch,
     exportBundle,
     importBundle,

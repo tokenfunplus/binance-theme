@@ -1,14 +1,13 @@
-const { chromium } = require("playwright");
+const { launchExtension } = require("./helpers/extension.cjs");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const os = require("node:os");
 const B = require("../src/core.js");
 const root = path.resolve(__dirname, "..");
 (async () => {
-  const profile = await fs.mkdtemp(path.join(os.tmpdir(), "binance-price-"));
   const output = path.join(root, "output/verification");
   await fs.mkdir(output, { recursive: true });
+  let session;
   let context;
   const checks = [],
     errors = [];
@@ -17,26 +16,12 @@ const root = path.resolve(__dirname, "..");
     console.log("PASS " + name);
   };
   try {
-    context = await chromium.launchPersistentContext(profile, {
-      channel: "chromium",
-      headless: true,
-      ...(process.env.BROWSER_EXECUTABLE
-        ? { executablePath: process.env.BROWSER_EXECUTABLE }
-        : {}),
+    session = await launchExtension({
       viewport: { width: 1440, height: 1000 },
-      args: [
-        `--disable-extensions-except=${root}`,
-        `--load-extension=${root}`,
-        "--headless=new",
-      ],
+      onPageError: (error) => errors.push(error.message),
     });
-    context.on("page", (page) =>
-      page.on("pageerror", (error) => errors.push(error.message)),
-    );
-    const worker =
-      context.serviceWorkers()[0] ||
-      (await context.waitForEvent("serviceworker"));
-    const id = new URL(worker.url()).hostname;
+    context = session.context;
+    const { id } = session;
     const options = await context.newPage();
     await options.goto(`chrome-extension://${id}/options.html#prices`);
     await options.waitForFunction(
@@ -406,8 +391,7 @@ const root = path.resolve(__dirname, "..");
       ),
     );
   } finally {
-    await context?.close();
-    await fs.rm(profile, { recursive: true, force: true });
+    await session?.close();
   }
 })().catch((error) => {
   console.error(error);

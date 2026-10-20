@@ -1,8 +1,7 @@
-const { chromium } = require("playwright");
+const { launchExtension } = require("./helpers/extension.cjs");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises");
 const path = require("node:path");
-const os = require("node:os");
 const { createServer } = require("../scripts/serve.cjs");
 const B = require("../src/core.js");
 const W = require("../src/workspace.js");
@@ -14,9 +13,7 @@ const root = path.resolve(__dirname, "..");
   const server = createServer();
   await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
   const base = `http://127.0.0.1:${server.address().port}`;
-  const profile = await fs.mkdtemp(
-    path.join(os.tmpdir(), "binance-studio-test-"),
-  );
+  let session;
   let context;
   const errors = [];
   const checks = [];
@@ -46,26 +43,12 @@ const root = path.resolve(__dirname, "..");
     );
   }
   try {
-    context = await chromium.launchPersistentContext(profile, {
-      channel: "chromium",
-      headless: true,
-      ...(process.env.BROWSER_EXECUTABLE
-        ? { executablePath: process.env.BROWSER_EXECUTABLE }
-        : {}),
+    session = await launchExtension({
       viewport: { width: 1440, height: 1000 },
-      args: [
-        `--disable-extensions-except=${root}`,
-        `--load-extension=${root}`,
-        "--headless=new",
-      ],
+      onPageError: (error) => errors.push(error.message),
     });
-    context.on("page", (page) =>
-      page.on("pageerror", (error) => errors.push(error.message)),
-    );
-    const worker =
-      context.serviceWorkers()[0] ||
-      (await context.waitForEvent("serviceworker", { timeout: 15000 }));
-    const id = new URL(worker.url()).hostname;
+    context = session.context;
+    const { id } = session;
     const options = await context.newPage();
     await options.goto(`chrome-extension://${id}/options.html`);
     await options.waitForFunction(
@@ -510,9 +493,8 @@ const root = path.resolve(__dirname, "..");
       `Verified ${checks.length} browser flows. Screenshots: ${output}`,
     );
   } finally {
-    await context?.close();
+    await session?.close();
     await new Promise((resolve) => server.close(resolve));
-    await fs.rm(profile, { recursive: true, force: true });
   }
 })().catch((error) => {
   console.error(error);

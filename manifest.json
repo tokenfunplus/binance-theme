@@ -25,6 +25,7 @@
     {
       "matches": ["https://www.binance.com/*", "https://binance.com/*"],
       "js": [
+        "src/storage.js",
         "src/core.js",
         "src/workspace.js",
         "src/market.js",

@@ -132,19 +132,7 @@
     setSaveState("正在保存…");
     const operation = saveQueue
       .catch(() => {})
-      .then(async () => {
-        if (!desktop) return B.writeSettings(snapshot);
-        if (B.isExtension())
-          await chrome.storage.local.set({
-            [B.STORAGE_KEY]: snapshot,
-            [StudioWorkspace.KEY]: StudioWorkspace.normalizeDesktop(desktop),
-          });
-        else {
-          await StudioWorkspace.write(desktop);
-          await B.writeSettings(snapshot);
-        }
-        return snapshot;
-      });
+      .then(() => StudioWorkspace.save(snapshot, desktop));
     saveQueue = operation
       .then(() => {
         pending--;

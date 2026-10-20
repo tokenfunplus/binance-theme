@@ -1,6 +1,7 @@
 (function (scope) {
   "use strict";
 
+  const storage = scope.StudioStorage || require("./storage.js");
   const STORAGE_KEY = "binance-studio.settings.v1";
   const PRESETS = Object.freeze({
     graphite: {
@@ -554,45 +555,17 @@ ${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
     return normalized;
   }
 
-  const isExtension = () =>
-    Boolean(scope.chrome?.runtime?.id && scope.chrome?.storage?.local);
+  const isExtension = storage.isExtension;
   async function readSettings() {
-    if (isExtension()) {
-      const data = await scope.chrome.storage.local.get(STORAGE_KEY);
-      return normalize(data[STORAGE_KEY]);
-    }
-    const stored = scope.localStorage.getItem(STORAGE_KEY);
-    return normalize(stored ? JSON.parse(stored) : undefined);
+    return normalize(await storage.read(STORAGE_KEY));
   }
   async function writeSettings(input) {
     const settings = normalize(input);
-    if (isExtension())
-      await scope.chrome.storage.local.set({ [STORAGE_KEY]: settings });
-    else scope.localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+    await storage.write({ [STORAGE_KEY]: settings });
     return settings;
   }
   function watchSettings(callback) {
-    if (isExtension()) {
-      const listener = (changes, area) => {
-        if (area === "local" && changes[STORAGE_KEY])
-          callback(normalize(changes[STORAGE_KEY].newValue));
-      };
-      scope.chrome.storage.onChanged.addListener(listener);
-      return () => scope.chrome.storage.onChanged.removeListener(listener);
-    }
-    const listener = (event) => {
-      if (event.key === STORAGE_KEY || event.key === null) {
-        try {
-          callback(
-            normalize(event.newValue ? JSON.parse(event.newValue) : undefined),
-          );
-        } catch {
-          /* Ignore malformed data from other tabs. */
-        }
-      }
-    };
-    scope.addEventListener("storage", listener);
-    return () => scope.removeEventListener("storage", listener);
+    return storage.watch(STORAGE_KEY, (value) => callback(normalize(value)));
   }
 
   const api = {

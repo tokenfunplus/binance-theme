@@ -1,15 +1,14 @@
-const { chromium } = require("playwright");
+const { launchExtension } = require("./helpers/extension.cjs");
 const assert = require("node:assert/strict");
 const fs = require("node:fs/promises"),
-  path = require("node:path"),
-  os = require("node:os");
+  path = require("node:path");
 const B = require("../src/core.js"),
   W = require("../src/workspace.js");
 const root = path.resolve(__dirname, "..");
 (async () => {
   const output = path.join(root, "output/verification");
   await fs.mkdir(output, { recursive: true });
-  const profile = await fs.mkdtemp(path.join(os.tmpdir(), "binance-cockpit-"));
+  let session;
   let context;
   const errors = [],
     checks = [];
@@ -18,26 +17,12 @@ const root = path.resolve(__dirname, "..");
     console.log("PASS " + name);
   }
   try {
-    context = await chromium.launchPersistentContext(profile, {
-      channel: "chromium",
-      headless: true,
-      ...(process.env.BROWSER_EXECUTABLE
-        ? { executablePath: process.env.BROWSER_EXECUTABLE }
-        : {}),
+    session = await launchExtension({
       viewport: { width: 1600, height: 1100 },
-      args: [
-        `--disable-extensions-except=${root}`,
-        `--load-extension=${root}`,
-        "--headless=new",
-      ],
+      onPageError: (error) => errors.push(error.message),
     });
-    context.on("page", (page) =>
-      page.on("pageerror", (error) => errors.push(error.message)),
-    );
-    const worker =
-      context.serviceWorkers()[0] ||
-      (await context.waitForEvent("serviceworker"));
-    const id = new URL(worker.url()).hostname;
+    context = session.context;
+    const { id, worker } = session;
     const bootstrap = await context.newPage();
     await bootstrap.goto(`chrome-extension://${id}/options.html`);
     await bootstrap.waitForFunction(
@@ -493,8 +478,7 @@ const root = path.resolve(__dirname, "..");
     );
     console.log(`Verified ${checks.length} cockpit flows.`);
   } finally {
-    await context?.close();
-    await fs.rm(profile, { recursive: true, force: true });
+    await session?.close();
   }
 })().catch((error) => {
   console.error(error);

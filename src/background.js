@@ -1,10 +1,9 @@
-importScripts("core.js", "workspace.js");
+importScripts("storage.js", "core.js", "workspace.js");
 
 chrome.runtime.onInstalled.addListener(async () => {
   const { STORAGE_KEY, DEFAULTS } = BinanceStudio;
-  const stored = await chrome.storage.local.get(STORAGE_KEY);
-  if (!stored[STORAGE_KEY])
-    await chrome.storage.local.set({ [STORAGE_KEY]: { ...DEFAULTS } });
+  const stored = await StudioStorage.read(STORAGE_KEY);
+  if (!stored) await BinanceStudio.writeSettings(DEFAULTS);
 });
 
 // Serialize writes from multiple trading tabs so one room cannot overwrite another.
@@ -26,10 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
         message.op,
         message.payload,
       );
-      await chrome.storage.local.set({
-        [BinanceStudio.STORAGE_KEY]: next.settings,
-        [StudioWorkspace.KEY]: next.desktop,
-      });
+      await StudioWorkspace.save(next.settings, next.desktop);
       respond({ ok: true, ...next });
     })
     .catch(() => respond({ ok: false, error: "保存失败，请重试。" }));
