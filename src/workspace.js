@@ -2,6 +2,7 @@
   "use strict";
   const B = scope.BinanceStudio || require("./core.js");
   const storage = scope.StudioStorage || require("./storage.js");
+  const I = scope.StudioI18n || require("./i18n.js");
   const KEY = "binance-studio.desktop.v1";
   const LABELS = Object.freeze({
     favorite: "自选市场",
@@ -211,6 +212,7 @@
             ...base,
             ...room.settings,
             enabled: base.enabled,
+            language: base.language,
             cockpitEnabled: base.cockpitEnabled,
             roomsEnabled: base.roomsEnabled,
           }
@@ -258,12 +260,12 @@
   }
   function importBundle(text) {
     if (typeof text !== "string" || text.length > 1048576)
-      throw Error("请选择 1 MB 以内的配置文件。");
+      throw Error(I.t("请选择 1 MB 以内的配置文件。"));
     let data;
     try {
       data = JSON.parse(text);
     } catch {
-      throw Error("无法读取 JSON，请检查文件格式。");
+      throw Error(I.t("无法读取 JSON，请检查文件格式。"));
     }
     if (data?.version === 1)
       return { settings: B.importProfile(text), desktop: null };
@@ -272,7 +274,7 @@
       data.version !== 2 ||
       !plain(data.desktop)
     )
-      throw Error("请选择 Binance Studio 导出的配置文件。");
+      throw Error(I.t("请选择 Binance Studio 导出的配置文件。"));
     const settings = B.importProfile(
         JSON.stringify({
           format: "binance-studio",
@@ -294,7 +296,7 @@
     if (
       JSON.stringify(stable(desktop)) !== JSON.stringify(stable(data.desktop))
     )
-      throw Error("房间或布局配置无效，请检查坐标、重叠与字段。");
+      throw Error(I.t("房间或布局配置无效，请检查坐标、重叠与字段。"));
     return { settings, desktop };
   }
   function prepareMutation(baseInput, desktopInput, key, op, payload = {}) {
@@ -329,7 +331,7 @@
     } else if (op === "saveRoom") {
       if (!route) throw Error("Invalid pair");
       if (!desktop.rooms[key] && Object.keys(desktop.rooms).length >= 48)
-        throw Error("最多保存 48 个房间");
+        throw Error(I.t("最多保存 48 个房间"));
       desktop.rooms[key] = {
         name: payload.name,
         note: payload.note,

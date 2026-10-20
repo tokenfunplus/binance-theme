@@ -104,7 +104,7 @@ test("extension storage batches keys, observes local changes and propagates fail
 test("workspace saves normalize both keys in one extension write and preserve omitted workspaces", async () => {
   const environment = extensionEnvironment();
   const context = vm.createContext(environment);
-  for (const file of ["storage.js", "core.js", "workspace.js"])
+  for (const file of ["storage.js", "locales/en.js", "i18n.js", "core.js", "workspace.js"])
     vm.runInContext(fs.readFileSync(path.join(__dirname, "../src", file), "utf8"), context);
   const B = context.BinanceStudio;
   const W = context.StudioWorkspace;

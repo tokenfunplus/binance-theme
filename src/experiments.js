@@ -52,14 +52,14 @@ ${[
   const roomCard = document.createElement("div");
   roomCard.className = "control-card";
   roomCard.innerHTML =
-    '<div class="card-heading"><h3>交易对专属房间</h3><span id="room-count" class="tiny-tag">0 ROOMS</span></div><p class="card-description">在币安页内点击「房间」，保存当前空间和便签。配置导出会一并保留房间和空间画布。</p><div id="saved-rooms"></div>';
+    '<div class="card-heading"><h3>交易对专属房间</h3><span id="room-count" class="tiny-tag">0 ROOMS</span></div><p class="card-description">在币安页内点击「房间」，保存当前空间和便签。配置导出会一并保留房间和空间画布。</p><div id="saved-rooms" data-i18n-ignore></div>';
   document.querySelector('[data-panel="profiles"]').append(roomCard);
   async function renderRooms() {
     try {
       const data = await StudioWorkspace.read();
       const entries = Object.entries(data.rooms);
       document.getElementById("room-count").textContent =
-        `${entries.length} ROOMS`;
+        StudioI18n.t("{count} 个房间", { count: entries.length });
       const list = document.getElementById("saved-rooms");
       list.replaceChildren();
       for (const [key, room] of entries) {
@@ -74,9 +74,10 @@ ${[
         list.append(row);
       }
     } catch {
-      document.getElementById("room-count").textContent = "读取失败";
+      document.getElementById("room-count").textContent = StudioI18n.t("读取失败");
     }
   }
   StudioWorkspace.watch(renderRooms);
+  StudioI18n.onChange(renderRooms);
   renderRooms();
 })();

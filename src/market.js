@@ -1,5 +1,6 @@
 (function (scope) {
   "use strict";
+  const I = scope.StudioI18n || require("./i18n.js");
   function endpoints(spec) {
     if (!spec || !/^[A-Z0-9]{2,24}$/.test(spec.symbol)) return [];
     const symbol = spec.symbol.toLowerCase();
@@ -185,12 +186,24 @@
       this.resize = new ResizeObserver(() => this.draw());
       this.resize.observe(depthCanvas);
       this.resize.observe(tapeCanvas);
+      this.stopLocaleWatch = I.onChange(() => this.refreshLabels());
     }
     setPalette(palette) {
       this.palette = palette;
       this.draw();
     }
     setStatus(state) {
+      this.status.dataset.state = state;
+      if (
+        ["connecting", "reconnecting", "paused", "unsupported"].includes(state)
+      ) {
+        this.book = null;
+        this.bubbles = [];
+        this.draw();
+      }
+      this.refreshLabels();
+    }
+    refreshLabels() {
       const labels = {
         connecting: "连接公开行情…",
         live: "实时 · Binance 公开行情",
@@ -199,22 +212,23 @@
         demo: "模拟行情 · 非实时",
         unsupported: "当前交易对暂不支持",
       };
-      this.status.textContent = labels[state] || state;
-      this.status.dataset.state = state;
-      if (
-        ["connecting", "reconnecting", "paused", "unsupported"].includes(state)
-      ) {
-        this.book = null;
-        this.bubbles = [];
-        this.metrics.textContent = "等待有效深度快照";
-        this.draw();
-      }
+      const state = this.status.dataset.state;
+      if (state) this.status.textContent = I.t(labels[state] || state);
+      const packet = this.book;
+      this.metrics.textContent = packet
+        ? I.t("买 {bids} 档 / 卖 {asks} 档 · 价差 {spread}", {
+            bids: packet.bids.length,
+            asks: packet.asks.length,
+            spread: (packet.asks[0][0] - packet.bids[0][0]).toLocaleString(
+              I.language, { maximumSignificantDigits: 5 },
+            ),
+          })
+        : I.t("等待有效深度快照");
     }
     push(packet) {
       if (packet.type === "depth") {
         this.book = packet;
-        const spread = packet.asks[0][0] - packet.bids[0][0];
-        this.metrics.textContent = `买 ${packet.bids.length} 档 / 卖 ${packet.asks.length} 档 · 价差 ${spread.toLocaleString("en-US", { maximumSignificantDigits: 5 })}`;
+        this.refreshLabels();
       } else {
         this.bubbles.push({ ...packet, arrived: performance.now() });
         this.bubbles = this.bubbles.slice(-100);
@@ -373,6 +387,7 @@
         this.frame = requestAnimationFrame((next) => this.tick(next));
     }
     destroy() {
+      this.stopLocaleWatch();
       this.destroyed = true;
       cancelAnimationFrame(this.frame);
       this.resize.disconnect();

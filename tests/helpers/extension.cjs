@@ -6,7 +6,7 @@ const path = require("node:path");
 const root = path.resolve(__dirname, "../..");
 
 // Every suite uses an isolated profile and the same Manifest V3 launch flags.
-async function launchExtension({ viewport, onPageError }) {
+async function launchExtension({ viewport, onPageError, locale = "zh-CN" }) {
   const profile = await fs.mkdtemp(path.join(os.tmpdir(), "binance-studio-test-"));
   let context;
   try {
@@ -17,6 +17,7 @@ async function launchExtension({ viewport, onPageError }) {
         ? { executablePath: process.env.BROWSER_EXECUTABLE }
         : {}),
       viewport,
+      locale,
       args: [
         `--disable-extensions-except=${root}`,
         `--load-extension=${root}`,

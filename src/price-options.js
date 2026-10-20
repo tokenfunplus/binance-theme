@@ -85,13 +85,13 @@
   const reduced = matchMedia("(prefers-reduced-motion: reduce)");
   function status() {
     document.getElementById("price-motion-status").textContent =
-      !settings.enabled
+      StudioI18n.t(!settings.enabled
         ? "扩展已暂停，当前显示静态报价。"
         : !settings.priceEffectsEnabled
           ? "价格动效已关闭，报价直接更新。"
           : reduced.matches
             ? "系统已开启减少动态效果，当前显示静态报价。"
-            : "仅演示显示效果，实际报价由币安更新。";
+            : "仅演示显示效果，实际报价由币安更新。");
   }
   reduced.addEventListener("change", status);
   window.StudioPricePreview = {

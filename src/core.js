@@ -2,6 +2,7 @@
   "use strict";
 
   const storage = scope.StudioStorage || require("./storage.js");
+  const I = scope.StudioI18n || require("./i18n.js");
   const STORAGE_KEY = "binance-studio.settings.v1";
   const PRESETS = Object.freeze({
     graphite: {
@@ -123,6 +124,7 @@
     },
   });
   const DEFAULTS = Object.freeze({
+    language: "auto",
     enabled: true,
     preset: "graphite",
     accent: "#f0b90b",
@@ -162,6 +164,7 @@
     priceChangedOnly: true,
   });
   const ENUMS = {
+    language: ["auto", "en", "zh-CN"],
     preset: Object.keys(PRESETS),
     font: ["system", "mono"],
     density: ["compact", "comfortable", "relaxed"],
@@ -521,12 +524,12 @@ ${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
 
   function importProfile(text) {
     if (typeof text !== "string" || text.length > 65536)
-      throw new Error("配置文件过大，请选择 64 KB 以内的 JSON 文件。");
+      throw new Error(I.t("配置文件过大，请选择 64 KB 以内的 JSON 文件。"));
     let data;
     try {
       data = JSON.parse(text);
     } catch {
-      throw new Error("无法读取 JSON，请检查文件格式。");
+      throw new Error(I.t("无法读取 JSON，请检查文件格式。"));
     }
     if (
       data?.format !== "binance-studio" ||
@@ -535,11 +538,11 @@ ${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
       typeof data.settings !== "object" ||
       Array.isArray(data.settings)
     ) {
-      throw new Error("请选择 Binance Studio 导出的 v1 配置文件。");
+      throw new Error(I.t("请选择 Binance Studio 导出的 v1 配置文件。"));
     }
     const keys = Object.keys(data.settings);
     if (!keys.length || keys.some((key) => !Object.hasOwn(DEFAULTS, key)))
-      throw new Error("配置文件包含无法识别的设置。");
+      throw new Error(I.t("配置文件包含无法识别的设置。"));
     const normalized = normalize(data.settings);
     for (const key of keys) {
       const original = data.settings[key];
@@ -549,7 +552,7 @@ ${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
           ? original.toLowerCase()
           : original)
       ) {
-        throw new Error(`配置项 ${key} 的值无效。`);
+        throw new Error(I.t("配置项 {key} 的值无效。", { key }));
       }
     }
     return normalized;

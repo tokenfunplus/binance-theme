@@ -19,7 +19,8 @@
     "check": "node scripts/check.cjs",
     "test": "node --test tests/*.test.cjs",
     "build": "node scripts/build.cjs",
-    "test:browser": "node tests/browser.cjs && node tests/cockpit-browser.cjs && node tests/price-browser.cjs",
+    "test:browser": "node tests/browser.cjs && node tests/cockpit-browser.cjs && node tests/price-browser.cjs && node tests/i18n-browser.cjs",
+    "test:i18n": "node tests/i18n-browser.cjs",
     "test:prices": "node tests/price-browser.cjs",
     "test:cockpit": "node tests/cockpit-browser.cjs"
   },

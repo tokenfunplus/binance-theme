@@ -20,7 +20,7 @@ function createServer() {
       );
       const relative = pathname.replace(/^\/+/, "");
       if (
-        !/^(options\.html|popup\.html|lab\.html|assets\/[\w.-]+|styles\/[\w.-]+\.css|src\/[\w.-]+\.js)$/.test(
+        !/^(options\.html|popup\.html|lab\.html|assets\/[\w.-]+|styles\/[\w.-]+\.css|src\/(?:locales\/)?[\w.-]+\.js)$/.test(
           relative,
         )
       ) {

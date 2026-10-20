@@ -17,6 +17,8 @@ function scriptsIn(directory) {
 function checkScriptOrder(scripts, label) {
   for (const [dependency, consumer] of [
     ["src/storage.js", "src/core.js"],
+    ["src/locales/en.js", "src/i18n.js"],
+    ["src/i18n.js", "src/core.js"],
     ["src/core.js", "src/workspace.js"],
   ]) {
     if (!scripts.includes(consumer)) continue;
@@ -40,6 +42,18 @@ function checkProject() {
     ...Object.values(manifest.icons),
     ...Object.values(manifest.action.default_icon),
   ]);
+  const messageKeys = [manifest.name, manifest.description, manifest.action.default_title]
+    .map((value) => value.match(/^__MSG_(\w+)__$/)?.[1]);
+  assert.ok(messageKeys.every(Boolean), "Extension metadata must use localized messages");
+  const locales = fs.readdirSync(path.join(root, "_locales"));
+  assert.ok(locales.includes(manifest.default_locale), "Missing default extension locale");
+  for (const locale of locales) {
+    const file = `_locales/${locale}/messages.json`;
+    references.add(file);
+    const messages = JSON.parse(fs.readFileSync(path.join(root, file), "utf8"));
+    for (const key of messageKeys)
+      assert.ok(messages[key]?.message, `${file}: missing ${key}`);
+  }
   for (const content of manifest.content_scripts) {
     content.js.forEach((file) => references.add(file));
     checkScriptOrder(content.js, "manifest content scripts");

@@ -2,7 +2,8 @@
   "use strict";
   const B = BinanceStudio,
     W = StudioWorkspace,
-    M = StudioMarket;
+    M = StudioMarket,
+    I = StudioI18n;
   const CSS = `
 :host{all:initial;--accent:#edc66e;--surface:#161f25;--ink:#e4eced;--muted:#859a9c;font:12px -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif;color:var(--ink);position:fixed;inset:0;pointer-events:none;z-index:100000;line-height:1.5;color-scheme:dark}
 *{box-sizing:border-box}button,input,textarea,select{font:inherit}button{cursor:pointer;color:inherit}button:disabled{opacity:.4;cursor:default}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}button{border:1px solid #ffffff14;background:#ffffff06;border-radius:8px;padding:8px 11px;transition:background .18s,transform .18s}button:hover{background:#ffffff12}button[aria-pressed=true]{background:color-mix(in srgb,var(--accent) 17%,transparent);color:var(--accent);border-color:color-mix(in srgb,var(--accent) 35%,transparent)}button:active{transform:translateY(1px)}[hidden]{display:none!important}.bar{pointer-events:auto;position:fixed;top:74px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:7px;border:1px solid #ffffff18;border-radius:14px;background:color-mix(in srgb,var(--surface) 94%,transparent);backdrop-filter:blur(20px);box-shadow:0 8px 40px #0005;max-width:calc(100vw - 28px);white-space:nowrap}.mark{color:var(--accent);font-size:19px;padding:0 6px}.symbol{font:10px monospace;padding:0 11px 0 3px;border-right:1px solid #ffffff18;display:flex;flex-direction:column;line-height:1.4}.symbol small{font:7px monospace;color:var(--muted);letter-spacing:1px}.scenes{display:flex;gap:3px;margin-right:4px}.scenes button{border:0;background:transparent;font-size:10px;padding:7px 11px}.bar>button{font-size:10px;padding:7px 9px}.bar select{background:#ffffff08;border:1px solid #ffffff15;color:var(--ink);border-radius:6px;padding:6px;font-size:9px;max-width:94px}.bar.compact>*:not(.mark):not(.expand){display:none}.bar.compact{left:auto;right:20px;transform:none}.bar .expand{border:0;background:none;padding:4px 7px;color:var(--muted)}.rail{pointer-events:auto;position:fixed;right:0;top:35%;display:flex;flex-direction:column;gap:3px;background:var(--surface);border:1px solid #ffffff1c;border-right:0;border-radius:12px 0 0 12px;padding:6px;box-shadow:-8px 0 30px #0003}.rail.left{right:auto;left:0;border-left:0;border-right:1px solid #ffffff1c;border-radius:0 12px 12px 0}.rail button{font-size:9px;writing-mode:vertical-rl;letter-spacing:2px;padding:14px 7px;background:none;border:0;border-radius:6px}.peek-controls{pointer-events:auto;position:fixed;top:132px;right:60px;width:min(380px,calc(100vw - 90px));display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid #ffffff22;border-radius:10px 10px 0 0;padding:7px 12px;height:37px}.peek-controls.left{right:auto;left:60px}.peek-controls span{font-size:11px}.peek-controls button{padding:3px 7px;font-size:9px}.toast{pointer-events:none;position:fixed;bottom:28px;left:50%;transform:translateX(-50%);background:#18252b;border:1px solid #78938e66;border-radius:9px;padding:12px 22px;box-shadow:0 8px 25px #0004;color:#d9ede5;font-size:12px;max-width:80vw}.toast.error{border-color:#cc7379;color:#f2bbc2}.spot-hint{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);font:10px monospace;letter-spacing:1px;border:1px solid #ffffff2a;border-radius:30px;background:#10191ee6;color:var(--accent);padding:10px 20px}.depth-window{pointer-events:auto;position:fixed;left:24px;bottom:24px;width:440px;max-width:calc(100vw - 48px);background:color-mix(in srgb,var(--surface) 97%,transparent);backdrop-filter:blur(20px);border:1px solid #ffffff21;border-radius:14px;box-shadow:0 20px 80px #0006;overflow:hidden}.depth-head{display:flex;justify-content:space-between;align-items:center;padding:14px 17px 10px;cursor:move;touch-action:none}.depth-head strong{font:10px monospace;letter-spacing:1.5px;color:var(--accent)}.depth-head button{padding:0 4px;border:0;background:none;font-size:20px;color:var(--muted)}.depth-status{margin:0 17px;color:var(--muted);font-size:9px}.depth-status[data-state=live]{color:#8ed6b2}.depth-status[data-state=demo]{color:#dec380}.depth-canvas{display:block;width:100%;height:180px}.depth-legend{display:flex;justify-content:space-between;margin:0 17px;color:var(--muted);font:8px monospace}.tape-canvas{display:block;width:100%;height:80px}.depth-metrics{font:8px monospace;color:var(--muted);margin:0;padding:0 17px 14px}.depth-window[data-reduced=true]{backdrop-filter:none}
@@ -33,6 +34,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
 <dialog id="room-dialog"><div class="dialog-pad"><button class="dialog-close" data-close="room-dialog" aria-label="关闭交易对房间">×</button><div class="eyebrow">A ROOM FOR EVERY MARKET</div><h2>这个交易对，有自己的空间。</h2><div class="room-meta"></div><p>保存当前皮肤、布局和便签。启用自动房间后，切换交易对即可回到这里。</p><label for="room-name">房间名称</label><input id="room-name" maxlength="40" placeholder="例如：BTC · 琥珀观察室"><label for="room-note">私人便签 · 仅本机保存</label><textarea id="room-note" maxlength="1200" placeholder="给下次打开这里的自己，留一句话。"></textarea><div class="actions"><button id="room-delete">恢复全局设置</button><button class="primary" id="room-save">保存并自动载入</button></div><div class="room-list"><span>已保存的空间</span><div class="room-list-items"></div></div></div></dialog>
 <dialog class="editor" id="editor-dialog"><div class="editor-header"><div><div class="eyebrow">SPATIAL WORKSPACE EDITOR</div><h2>把空间，放在你想要的位置。</h2></div><div class="actions"><button data-close="editor-dialog">取消</button><button class="primary" id="editor-save">应用布局 ↗</button></div></div><div class="editor-toolbar"><span>12 列磁吸网格 · 拖动移动 · 右下角缩放 · 等大卡片可交换</span><button id="editor-reset">重置画布</button></div><div class="editor-stage"><div class="editor-grid" role="group" aria-label="空间布局画布"></div></div><div class="editor-footer"><span class="editor-selected">选择一个面板</span><label class="tile-field">X<input data-tile-field="x" type="number" min="0" max="11" aria-label="面板 X 坐标"></label><label class="tile-field">Y<input data-tile-field="y" type="number" min="0" max="40" aria-label="面板 Y 坐标"></label><label class="tile-field">宽<input data-tile-field="w" type="number" min="1" max="12" aria-label="面板宽度格数"></label><label class="tile-field">高<input data-tile-field="h" type="number" min="1" max="24" aria-label="面板高度格数"></label></div></dialog>`;
       (document.body || document.documentElement).append(this.host);
+      this.stopLocaleWatch = I.bind(this.shadow);
       this.$ = (selector) => this.shadow.querySelector(selector);
       this.depthView = new M.DepthView({
         depthCanvas: this.$(".depth-canvas"),
@@ -49,7 +51,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
     notify(text, error = false) {
       clearTimeout(this.toastTimer);
       const toast = this.$(".toast");
-      toast.textContent = text;
+      toast.textContent = I.t(text);
       toast.classList.toggle("error", error);
       toast.hidden = false;
       this.toastTimer = setTimeout(() => (toast.hidden = true), 4500);
@@ -78,10 +80,10 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
       );
       this.$("#compact-toggle").addEventListener("click", () => {
         const compact = this.$(".bar").classList.toggle("compact");
-        this.$("#compact-toggle").textContent = compact ? "展开" : "⌃";
+        this.$("#compact-toggle").textContent = compact ? I.t("展开") : "⌃";
         this.$("#compact-toggle").setAttribute(
           "aria-label",
-          compact ? "展开驾驶舱" : "收起驾驶舱",
+          I.t(compact ? "展开驾驶舱" : "收起驾驶舱"),
         );
       });
       this.$("#dock-toggle").addEventListener("click", () =>
@@ -226,6 +228,12 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
     update(context) {
       const previous = this.context;
       this.context = context;
+      if (this.locale !== I.language) this.dockKey = null;
+      this.locale = I.language;
+      this.host.lang = I.language;
+      const compact = this.$(".bar").classList.contains("compact");
+      this.$("#compact-toggle").textContent = compact ? I.t("展开") : "⌃";
+      this.$("#compact-toggle").setAttribute("aria-label", I.t(compact ? "展开驾驶舱" : "收起驾驶舱"));
       const p = B.palette(context.settings);
       for (const [key, value] of Object.entries({
         accent: p.accent,
@@ -249,9 +257,9 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         String(context.settings.depthEnabled),
       );
       this.$("#editor-open").disabled = !context.areas.length;
-      this.$("#editor-open").title = context.areas.length
+      this.$("#editor-open").title = I.t(context.areas.length
         ? "打开空间布局编辑器"
-        : "当前页面未识别到完整合约网格";
+        : "当前页面未识别到完整合约网格");
       this.shadow
         .querySelectorAll("[data-scene]")
         .forEach((button) =>
@@ -273,6 +281,19 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
           dialog.close();
       }
       this.renderDock();
+      if (this.openArea)
+        this.$("#peek-title").textContent = I.t(W.LABELS[this.openArea]) +
+          I.t(this.pinned ? " · 固定展开" : " · 悬停预览");
+      for (const element of this.shadow.querySelectorAll(".tile")) {
+        const panel = I.t(W.LABELS[element.dataset.area]);
+        element.querySelector("strong").textContent = panel;
+        element.setAttribute("aria-label", I.t("移动{panel}，方向键移动，Shift 加方向键缩放", { panel }));
+        element.querySelector(".resize-tile").setAttribute("aria-label", I.t("缩放") + panel);
+      }
+      if (this.tiles) {
+        const selected = this.tiles.find((tile) => tile.area === this.selected);
+        this.$(".editor-selected").textContent = I.t(selected ? W.LABELS[selected.area] : "选择一个面板");
+      }
       this.updateFeed();
       if (!context.settings.spotlightEnabled) this.endSpotlight();
     }
@@ -288,8 +309,8 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         rail.replaceChildren();
         for (const area of areas) {
           const button = document.createElement("button");
-          button.textContent = W.LABELS[area];
-          button.setAttribute("aria-label", "打开边缘面板：" + W.LABELS[area]);
+          button.textContent = I.t(W.LABELS[area]);
+          button.setAttribute("aria-label", I.t("打开边缘面板：") + I.t(W.LABELS[area]));
           button.addEventListener("pointerenter", () => {
             if (!this.pinned) this.peek(area, false);
           });
@@ -327,7 +348,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
       this.peekPanel = panel;
       panel.setAttribute("data-bst-dock-open", this.context.settings.dockEdge);
       this.$("#peek-title").textContent =
-        W.LABELS[area] + (pinned ? " · 固定展开" : " · 悬停预览");
+        I.t(W.LABELS[area]) + I.t(pinned ? " · 固定展开" : " · 悬停预览");
       this.$(".peek-controls").hidden = false;
       if (!this.peekBound) this.peekBound = new Map();
       if (!this.peekBound.has(panel)) {
@@ -375,7 +396,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
       this.$(".room-meta").textContent =
         `${this.context.route.market.toUpperCase()} / ${this.context.route.symbol}`;
       this.$("#room-name").value =
-        room?.name || `${this.context.route.symbol} · 我的空间`;
+        room?.name || I.t("{symbol} · 我的空间", { symbol: this.context.route.symbol });
       this.$("#room-note").value = room?.note || "";
       this.$("#room-delete").disabled = !room;
       const list = this.$(".room-list-items");
@@ -413,20 +434,20 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         element.dataset.compact = String(tile.h < 2);
         element.setAttribute(
           "aria-label",
-          `移动${W.LABELS[tile.area]}，方向键移动，Shift 加方向键缩放`,
+          I.t("移动{panel}，方向键移动，Shift 加方向键缩放", { panel: I.t(W.LABELS[tile.area]) }),
         );
         element.style.gridColumn = `${tile.x + 1}/span ${tile.w}`;
         element.style.gridRow = `${tile.y + 1}/span ${tile.h}`;
         element.classList.toggle("selected", this.selected === tile.area);
         const strong = document.createElement("strong");
-        strong.textContent = W.LABELS[tile.area];
+        strong.textContent = I.t(W.LABELS[tile.area]);
         const small = document.createElement("small");
         small.textContent = `${tile.w} × ${tile.h} / ${tile.area.toUpperCase()}`;
         const art = document.createElement("div");
         art.className = "tile-art";
         const handle = document.createElement("button");
         handle.className = "resize-tile";
-        handle.setAttribute("aria-label", "缩放" + W.LABELS[tile.area]);
+        handle.setAttribute("aria-label", I.t("缩放") + I.t(W.LABELS[tile.area]));
         handle.textContent = "◢";
         element.append(strong, small, art, handle);
         grid.append(element);
@@ -460,8 +481,8 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
     renderSelected() {
       const tile = this.tiles.find((t) => t.area === this.selected);
       this.$(".editor-selected").textContent = tile
-        ? W.LABELS[tile.area]
-        : "选择一个面板";
+        ? I.t(W.LABELS[tile.area])
+        : I.t("选择一个面板");
       for (const input of this.shadow.querySelectorAll("[data-tile-field]")) {
         input.disabled = !tile;
         input.value = tile ? tile[input.dataset.tileField] : "";
@@ -567,6 +588,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
       });
     }
     destroy() {
+      this.stopLocaleWatch();
       for (const [panel, handlers] of this.peekBound || []) {
         panel.removeEventListener("pointerenter", handlers.enter);
         panel.removeEventListener("pointerleave", handlers.leave);

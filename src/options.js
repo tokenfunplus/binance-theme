@@ -1,6 +1,8 @@
 (() => {
   "use strict";
   const B = BinanceStudio;
+  const I = StudioI18n;
+  I.bind(document);
   let settings = B.normalize();
   let pending = 0;
   let saveQueue = Promise.resolve();
@@ -38,7 +40,7 @@
   function notify(message, error = false) {
     const toast = document.getElementById("toast");
     clearTimeout(toastTimer);
-    toast.textContent = message;
+    toast.textContent = I.t(message);
     toast.classList.toggle("error", error);
     toast.hidden = false;
     toastTimer = setTimeout(
@@ -49,7 +51,7 @@
     );
   }
   function setSaveState(message, error = false) {
-    saveState.querySelector("span").textContent = message;
+    saveState.querySelector("span").textContent = I.t(message);
     saveState.classList.toggle("error", error);
   }
 
@@ -75,6 +77,10 @@
   }
 
   function render() {
+    const previousLanguage = I.language;
+    I.setLanguage(settings.language);
+    if (I.language !== previousLanguage)
+      setView(location.hash.slice(1) || "cockpit", false);
     document.querySelectorAll("[data-setting]").forEach((input) => {
       const value = settings[input.dataset.setting];
       if (input.type === "checkbox") input.checked = value;
@@ -92,6 +98,11 @@
       input.value = settings[input.dataset.hex].toUpperCase();
     });
     document.querySelectorAll("[data-preset]").forEach((button) => {
+      const preset = B.PRESETS[button.dataset.preset];
+      button.querySelector(".theme-name").firstChild.data = I.t(preset.name);
+      button.querySelector(".theme-name > span").hidden = I.language === "en";
+      button.setAttribute("aria-label", I.language === "en"
+        ? preset.subtitle : `${preset.name} · ${preset.subtitle}`);
       const selected = button.dataset.preset === settings.preset;
       button.classList.toggle("selected", selected);
       button.setAttribute("aria-pressed", String(selected));
@@ -109,7 +120,7 @@
         );
       input.checked = !settings[input.dataset.inverse] && !forced;
       input.disabled = forced;
-      input.title = forced ? "专注模式已隐藏此区域，切换布局后可单独调整" : "";
+      input.title = forced ? I.t("专注模式已隐藏此区域，切换布局后可单独调整") : "";
     });
     StudioPreview.render(settings);
     StudioPricePreview.render(settings);
@@ -211,14 +222,14 @@
     document.querySelectorAll("[data-panel]").forEach((panel) => {
       panel.hidden = panel.dataset.panel !== view;
     });
-    document.getElementById("breadcrumb-current").textContent = titles[view][0];
+    document.getElementById("breadcrumb-current").textContent = I.t(titles[view][0]);
     const title = document.getElementById("page-title");
-    title.textContent = titles[view][1];
+    title.textContent = I.t(titles[view][1]);
     const dot = document.createElement("span");
     dot.textContent = ".";
     title.append(dot);
-    document.getElementById("page-subtitle").textContent = titles[view][2];
-    document.title = `${titles[view][0]} · Binance Studio`;
+    document.getElementById("page-subtitle").textContent = I.t(titles[view][2]);
+    document.title = `${I.t(titles[view][0])} · Binance Studio`;
     StudioPricePreview.setView(view);
     if (updateHash) history.replaceState(null, "", `#${view}`);
   }
@@ -304,11 +315,11 @@
       const status = document.getElementById("import-status");
       try {
         if (file.size > 1048576)
-          throw new Error("配置文件过大，请选择 1 MB 以内的 JSON 文件。");
+          throw new Error(I.t("配置文件过大，请选择 1 MB 以内的 JSON 文件。"));
         const next = StudioWorkspace.importBundle(await file.text());
         await commit(next.settings, next.desktop);
         status.classList.remove("error");
-        status.textContent = "配置已导入并保存。你的空间回来了。";
+        status.textContent = I.t("配置已导入并保存。你的空间回来了。");
         notify("配置已导入并应用。");
       } catch (error) {
         status.classList.add("error");

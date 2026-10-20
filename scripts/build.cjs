@@ -12,6 +12,7 @@ const PACKAGED_PATHS = [
   "src",
   "styles",
   "assets",
+  "_locales",
   "README.md",
   "README.zh-CN.md",
   "CONTRIBUTING.md",

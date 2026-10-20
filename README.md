@@ -4,7 +4,7 @@
 
 A local-first Chrome / Edge extension for customizing the appearance and trading layout of **Binance Global at `https://www.binance.com`**. Choose a theme, arrange panels, and build a personal trading workspace without an API key.
 
-The extension has no third-party runtime dependencies. Its interface is currently primarily in Simplified Chinese; the project documentation is available in English and Mandarin (Simplified Chinese).
+The extension has no third-party runtime dependencies. The extension interface and project documentation are available in English and Mandarin (Simplified Chinese).
 
 ## Preview
 
@@ -43,11 +43,17 @@ Switch themes, toggle focus mode, or open the full settings console from the bro
 2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
 3. Enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json`: either the repository root or `dist/binance-studio`.
 4. Open or **refresh** a Binance Global page and pin Binance Studio to the toolbar.
-5. Click the extension icon to switch themes, or choose **打开定制工作台** to open the full customization console.
+5. Click the extension icon to switch themes, or choose **Open customization console / 打开定制工作台** to open the full customization console.
 
-Settings save automatically and update Binance tabs where the extension is running. Turning off **启用扩展** removes injected styles and panel markers and restores the native presentation.
+Settings save automatically and update Binance tabs where the extension is running. Turning off **Enable extension / 启用扩展** removes injected styles and panel markers and restores the native presentation.
 
 After updating an existing installation, reload the extension on the extensions page, then refresh your Binance tabs. Chrome 111 or newer is required by the manifest; the extension targets desktop Chromium browsers.
+
+## Interface language
+
+Use the **Language / 语言** selector in the toolbar popup or the top bar of the settings console. Choose **English**, **简体中文**, or **Follow browser / 跟随浏览器** (the default). Chinese browser locales use Simplified Chinese; other locales use English.
+
+The choice is saved locally and updates open extension pages and the trading cockpit. It applies to controls, previews, help, validation messages, tooltips and accessibility labels. Language is a global preference, so pair rooms cannot override it. Your Binance page language, room names and private notes stay as entered. The standalone preview saves its own language preference separately.
 
 ## Features
 
@@ -123,8 +129,9 @@ npm run test:browser
 | `npm run dev` | Local preview on `127.0.0.1:4173`; override with `PORT` |
 | `npm run check` | Check JavaScript syntax, resource references, script order and versions |
 | `npm test` | Unit tests for settings, storage, layouts, rooms, prices and market parsing |
-| `npm run test:browser` | Run all three browser suites with the actual unpacked extension |
+| `npm run test:browser` | Run all four browser suites with the actual unpacked extension |
 | `npm run test:cockpit` | Cockpit, layout, rooms and market lifecycle tests |
+| `npm run test:i18n` | Bilingual UI, language persistence, cross-page sync and input preservation |
 | `npm run test:prices` | Price effects and responsive preview tests |
 | `npm run build` | Create a clean unpacked extension and versioned ZIP in `dist/` |
 
@@ -142,6 +149,9 @@ options.html            Full customization console
 popup.html              Toolbar popup
 lab.html                Simulated trading cockpit
 src/storage.js          Shared extension / preview storage boundary
+src/i18n.js             Locale selection and scoped UI translation
+src/locales/en.js       English translations keyed by Mandarin source text
+_locales/               Browser-native extension name and description
 src/core.js             Settings validation, themes and profile format
 src/workspace.js        Canvas, pair rooms, v2 bundles and workspace saves
 src/background.js       Initial settings and serialized trading-tab mutations

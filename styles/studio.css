@@ -2855,3 +2855,32 @@ dialog::backdrop {
     scroll-behavior: auto !important;
   }
 }
+.language-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+  white-space: nowrap;
+}
+.language-control select {
+  max-width: 150px;
+  min-width: 0;
+  padding: 6px 24px 6px 9px;
+  border: 1px solid var(--line, #deded8);
+  border-radius: 7px;
+  background-color: var(--surface, #fff);
+  color: inherit;
+  font: inherit;
+}
+.language-control select:focus-visible {
+  outline: 2px solid var(--accent, #b58100);
+  outline-offset: 2px;
+}
+.popup-language { display: flex; justify-content: space-between; margin-bottom: 16px; }
+@media (max-width: 600px) {
+  .topbar-right { flex-wrap: wrap; justify-content: flex-end; gap: 8px; }
+  .topbar { height: auto; min-height: 64px; gap: 8px; }
+  .language-control { font-size: 10px; }
+  .language-control select { max-width: 126px; }
+}

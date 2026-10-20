@@ -193,6 +193,7 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
   }
   function apply() {
     if (!ready || !document.documentElement) return;
+    StudioI18n.setLanguage(base.language);
     route = W.routeContext(location.href);
     const effective = W.resolve(base, desktop, route);
     settings = effective.settings;

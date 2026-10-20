@@ -1,6 +1,8 @@
 (() => {
   "use strict";
   const B = BinanceStudio;
+  const I = StudioI18n;
+  I.bind(document);
   let settings = B.normalize();
   let ready = false;
   let queue = Promise.resolve();
@@ -10,6 +12,7 @@
   const themes = document.getElementById("popup-themes");
   const enabled = document.getElementById("popup-enabled");
   const focus = document.getElementById("popup-focus");
+  const language = document.getElementById("popup-language");
 
   for (const [id, preset] of Object.entries(B.PRESETS)) {
     const button = document.createElement("button");
@@ -27,15 +30,20 @@
     themes.append(button);
   }
   function render() {
+    I.setLanguage(settings.language);
+    language.value = settings.language;
     enabled.checked = settings.enabled;
     focus.checked = settings.layout === "focus";
     themes.querySelectorAll("button").forEach((button) => {
+      const name = I.t(B.PRESETS[button.dataset.preset].name);
+      button.setAttribute("aria-label", name);
+      button.title = name;
       const selected = settings.preset === button.dataset.preset;
       button.classList.toggle("selected", selected);
       button.setAttribute("aria-pressed", String(selected));
     });
     document.getElementById("selected-theme").textContent =
-      `${B.PRESETS[settings.preset].name}${settings.enabled ? "" : " · 已暂停"}`;
+      `${I.t(B.PRESETS[settings.preset].name)}${settings.enabled ? "" : I.t(" · 已暂停")}`;
   }
   function commit(patch) {
     if (!ready) return;
@@ -43,24 +51,25 @@
     render();
     const snapshot = { ...settings };
     pending++;
-    status.textContent = "正在保存…";
+    status.textContent = I.t("正在保存…");
     status.classList.remove("error");
     queue = queue
       .catch(() => {})
       .then(() => B.writeSettings(snapshot))
       .then(() => {
         pending--;
-        if (!pending) status.textContent = "已保存";
+        if (!pending) status.textContent = I.t("已保存");
       })
       .catch(() => {
         pending--;
-        status.textContent = "保存失败，请重试";
+        status.textContent = I.t("保存失败，请重试");
         status.classList.add("error");
       });
   }
   enabled.addEventListener("change", () =>
     commit({ enabled: enabled.checked }),
   );
+  language.addEventListener("change", () => commit({ language: language.value }));
   focus.addEventListener("change", () => {
     if (focus.checked) previousLayout = settings.layout;
     commit({ layout: focus.checked ? "focus" : previousLayout });
@@ -82,11 +91,12 @@
       ready = true;
       enabled.disabled = false;
       focus.disabled = false;
+      language.disabled = false;
       render();
-      status.textContent = "已保存";
+      status.textContent = I.t("已保存");
     })
     .catch(() => {
-      status.textContent = "读取失败，请打开工作台";
+      status.textContent = I.t("读取失败，请打开工作台");
       status.classList.add("error");
     });
 
@@ -94,7 +104,7 @@
     const wrapper = document.getElementById("site-status");
     const text = wrapper.querySelector("p");
     if (!B.isExtension()) {
-      text.textContent = "独立预览 · 加载扩展后可应用到币安";
+      text.textContent = I.t("独立预览 · 加载扩展后可应用到币安");
       document.getElementById("open-binance-popup").hidden = false;
       return;
     }
@@ -109,7 +119,7 @@
         url.protocol !== "https:" ||
         !["www.binance.com", "binance.com"].includes(url.hostname)
       ) {
-        text.textContent = "打开币安交易页，体验你的专属主题。";
+        text.textContent = I.t("打开币安交易页，体验你的专属主题。");
         document.getElementById("open-binance-popup").hidden = false;
         return;
       }
@@ -118,11 +128,11 @@
         result = await chrome.tabs.sendMessage(tab.id, { type: "bst:status" });
       } catch {
         wrapper.classList.add("warning");
-        text.textContent = "请刷新币安页面，让扩展开始生效。";
+        text.textContent = I.t("请刷新币安页面，让扩展开始生效。");
         return;
       }
       wrapper.classList.add("connected");
-      text.textContent = "已连接币安 · 样式随设置自动更新";
+      text.textContent = I.t("已连接币安 · 样式随设置自动更新");
       const labels = {
         chart: "图表",
         orderbook: "订单簿",
@@ -132,10 +142,14 @@
       };
       const adapter = document.getElementById("adapter-status");
       adapter.hidden = false;
-      adapter.textContent = `已识别：${result.panels.map((name) => labels[name]).join("、") || "暂无交易面板"}。${result.adapter === "futures-grid" ? "合约网格适配已就绪，隐藏面板可自动重排。" : result.mirrorSupported ? "支持镜像布局。" : "当前结构未识别到可镜像容器。"}`;
+      adapter.textContent = I.t("已识别：{panels}。{adapter}", {
+        panels: result.panels.map((name) => I.t(labels[name] || name)).join(I.language === "en" ? ", " : "、") || I.t("暂无交易面板"),
+        adapter: I.t(result.adapter === "futures-grid" ? "合约网格适配已就绪，隐藏面板可自动重排。" : result.mirrorSupported ? "支持镜像布局。" : "当前结构未识别到可镜像容器。"),
+      });
     } catch {
-      text.textContent = "暂时无法检测当前页面，设置仍会保存。";
+      text.textContent = I.t("暂时无法检测当前页面，设置仍会保存。");
     }
   }
+  I.onChange(inspectPage);
   inspectPage();
 })();

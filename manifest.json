@@ -1,13 +1,18 @@
 {
   "manifest_version": 3,
-  "name": "Binance Studio · 币安主题与布局",
+  "name": "__MSG_extensionName__",
   "version": "0.3.0",
-  "description": "用空间布局编辑器、边缘 Dock、聚光灯、交易对房间、风格皮肤和动态盘口，打造自己的币安交易驾驶舱。",
+  "description": "__MSG_extensionDescription__",
   "minimum_chrome_version": "111",
-  "permissions": ["storage", "activeTab"],
-  "background": { "service_worker": "src/background.js" },
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "src/background.js"
+  },
   "action": {
-    "default_title": "Binance Studio",
+    "default_title": "__MSG_extensionName__",
     "default_popup": "popup.html",
     "default_icon": {
       "16": "assets/icon-16.png",
@@ -23,9 +28,14 @@
   "options_page": "options.html",
   "content_scripts": [
     {
-      "matches": ["https://www.binance.com/*", "https://binance.com/*"],
+      "matches": [
+        "https://www.binance.com/*",
+        "https://binance.com/*"
+      ],
       "js": [
         "src/storage.js",
+        "src/locales/en.js",
+        "src/i18n.js",
         "src/core.js",
         "src/workspace.js",
         "src/market.js",
@@ -38,5 +48,6 @@
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'none'; connect-src wss://fstream.binance.com wss://stream.binance.com:9443"
-  }
+  },
+  "default_locale": "en"
 }

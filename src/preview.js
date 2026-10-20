@@ -1,6 +1,7 @@
 (() => {
   "use strict";
   const B = BinanceStudio;
+  const I = StudioI18n;
   const el = document.getElementById("trading-preview");
   let interval = "1h";
   let lastSettings = B.normalize();
@@ -206,12 +207,14 @@
       `${Math.round(s.positionsHeight * 0.36)}px`;
     const banner = el.querySelector(".preview-pause");
     banner.hidden = settings.enabled && !native;
-    banner.textContent = native
+    banner.textContent = I.t(native
       ? "正在对比原生样式 · 再次点击右上角返回"
-      : "扩展已暂停 · 币安页面恢复原生样式";
+      : "扩展已暂停 · 币安页面恢复原生样式");
     document.getElementById("preview-theme-label").textContent = native
-      ? "原生样式对比"
-      : `${B.PRESETS[lastSettings.preset].name}${!settings.enabled ? " · 已暂停" : ""}`;
+      ? I.t("原生样式对比")
+      : `${I.t(B.PRESETS[lastSettings.preset].name)}${!settings.enabled ? I.t(" · 已暂停") : ""}`;
+    document.getElementById("native-preview").setAttribute("aria-label",
+      I.t(native ? "返回自定义样式" : "查看原生样式"));
   }
 
   el.querySelectorAll("[data-interval]").forEach((button) =>

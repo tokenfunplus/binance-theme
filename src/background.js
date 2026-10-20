@@ -1,4 +1,4 @@
-importScripts("storage.js", "core.js", "workspace.js");
+importScripts("storage.js", "locales/en.js", "i18n.js", "core.js", "workspace.js");
 
 chrome.runtime.onInstalled.addListener(async () => {
   const { STORAGE_KEY, DEFAULTS } = BinanceStudio;
@@ -18,6 +18,7 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
         BinanceStudio.readSettings(),
         StudioWorkspace.read(),
       ]);
+      StudioI18n.setLanguage(base.language);
       const next = StudioWorkspace.prepareMutation(
         base,
         desktop,
@@ -28,6 +29,6 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
       await StudioWorkspace.save(next.settings, next.desktop);
       respond({ ok: true, ...next });
     })
-    .catch(() => respond({ ok: false, error: "保存失败，请重试。" }));
+    .catch(() => respond({ ok: false, error: StudioI18n.t("保存失败，请重试。") }));
   return true;
 });

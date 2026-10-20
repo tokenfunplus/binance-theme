@@ -187,4 +187,5 @@
       button.disabled = false;
     }
   });
+  StudioI18n.bind(document);
 })();
