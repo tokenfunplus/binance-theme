@@ -12,28 +12,28 @@ The extension has no third-party runtime dependencies. The extension interface a
 
 Adjust themes, colors, typography, and layout with a live preview. All market data in the preview is simulated.
 
-![Customization console with theme presets, color controls, typography and a simulated trading preview](docs/screenshots/customization-console.png)
+![Customization console with theme presets, color controls, typography and a simulated trading preview](docs/screenshots/en/customization-console.png)
 
 ### Toolbar popup
 
 Switch themes, toggle focus mode, or open the full settings console from the browser toolbar.
 
-<img src="docs/screenshots/chrome-popup.png" alt="Toolbar popup with nine themes, focus mode, enable switch and settings shortcut" width="350">
+<img src="docs/screenshots/en/chrome-popup.png" alt="Toolbar popup with nine themes, focus mode, enable switch and settings shortcut" width="350">
 
 <details>
 <summary>Price effects, trading cockpit and spatial editor</summary>
 
 **Price effects** combine digit transitions and lighting effects, with a simulated NEARUSDT ticker.
 
-![Price effects controls and a simulated NEARUSDT ticker](docs/screenshots/price-options.png)
+![Price effects controls and a simulated NEARUSDT ticker](docs/screenshots/en/price-options.png)
 
 **Radar cockpit** includes scenes, an edge Dock and an animated depth display. Prices, depth and trades in this screenshot are examples from the simulation lab.
 
-![Simulated Radar cockpit with scenes, edge Dock and a floating depth display](docs/screenshots/cockpit-lab.png)
+![Simulated Radar cockpit with scenes, edge Dock and a floating depth display](docs/screenshots/en/cockpit-lab.png)
 
 **Spatial editor** supports dragging, resizing, and exact coordinates on a 12-column canvas.
 
-![Spatial editor with draggable trading panels and coordinate controls](docs/screenshots/spatial-editor.png)
+![Spatial editor with draggable trading panels and coordinate controls](docs/screenshots/en/spatial-editor.png)
 
 </details>
 
@@ -43,15 +43,15 @@ Switch themes, toggle focus mode, or open the full settings console from the bro
 2. Open `chrome://extensions` in Chrome or `edge://extensions` in Edge.
 3. Enable **Developer mode**, choose **Load unpacked**, and select the folder containing `manifest.json`: either the repository root or `dist/binance-studio`.
 4. Open or **refresh** a Binance Global page and pin Binance Studio to the toolbar.
-5. Click the extension icon to switch themes, or choose **Open customization console / 打开定制工作台** to open the full customization console.
+5. Click the extension icon to switch themes, or choose **Open customization console** to open the full customization console.
 
-Settings save automatically and update Binance tabs where the extension is running. Turning off **Enable extension / 启用扩展** removes injected styles and panel markers and restores the native presentation.
+Settings save automatically and update Binance tabs where the extension is running. Turning off **Enable extension** removes injected styles and panel markers and restores the native presentation.
 
 After updating an existing installation, reload the extension on the extensions page, then refresh your Binance tabs. Chrome 111 or newer is required by the manifest; the extension targets desktop Chromium browsers.
 
 ## Interface language
 
-Use the **Language / 语言** selector in the toolbar popup or the top bar of the settings console. Choose **English**, **简体中文**, or **Follow browser / 跟随浏览器** (the default). Chinese browser locales use Simplified Chinese; other locales use English.
+Use the **Language** selector in the toolbar popup or the top bar of the settings console. Choose **English**, **简体中文**, or **Follow browser** (the default). Chinese browser locales use Simplified Chinese; other locales use English.
 
 The choice is saved locally and updates open extension pages and the trading cockpit. It applies to controls, previews, help, validation messages, tooltips and accessibility labels. Language is a global preference, so pair rooms cannot override it. Your Binance page language, room names and private notes stay as entered. The standalone preview saves its own language preference separately.
 
@@ -72,7 +72,7 @@ The console pairs a graphite sidebar with neutral cards and amber accents. The c
 
 ### Trading cockpit
 
-Use the floating toolbar on a supported trading page, or open **私人驾驶舱 → 进入模拟驾驶舱** in settings. The standalone preview also offers `/lab.html`. The lab uses simulated prices, depth and trades, and its settings changes are saved.
+Use the floating toolbar on a supported trading page, or open **Trading cockpit → Open cockpit lab** in settings. The standalone preview also offers `/lab.html`. The lab uses simulated prices, depth and trades, and its settings changes are saved.
 
 - **Spatial editor:** drag and resize panel representations on a 12-column grid. Use arrow keys to move, Shift + arrow keys to resize, or enter exact coordinates. Equal-size cards can swap. Applying a layout rearranges the original cards through CSS, reveals the included panels and disables Dock. Cancel or Esc discards the draft.
 - **Edge Dock:** tuck orderbook, trades, or positions panels against the left or right edge. Hover to preview and click to pin. Original DOM nodes and input values are preserved. Standard layouts reclaim space; custom layouts retain their coordinates.
@@ -84,7 +84,7 @@ Use the floating toolbar on a supported trading page, or open **私人驾驶舱 
 
 ### Price effects
 
-Open **价格动效** in settings. The default is a mechanical roll with a directional pulse; quick mixes and individual controls are also available.
+Open **Price effects** in settings. The default is a mechanical roll with a directional pulse; quick mixes and individual controls are also available.
 
 - Digit transitions: roll, flip, directional slide, bounce, or instant updates.
 - Lighting: pulse, neon afterglow, radar scan, glitch, or none.
@@ -139,6 +139,7 @@ npm run test:browser
 | `npm run test:i18n` | Bilingual UI, language persistence, cross-page sync and input preservation |
 | `npm run test:prices` | Price effects and responsive preview tests |
 | `npm run build` | Create a clean unpacked extension and versioned ZIP in `dist/` |
+| `npm run screenshots:en` | Refresh the five English README screenshots in an isolated extension profile |
 
 The installed extension uses `chrome.storage.local`. The standalone preview uses `localStorage` and has separate settings; use export/import to move them. Multiple pages observe storage changes, and failed writes are reported in the UI.
 

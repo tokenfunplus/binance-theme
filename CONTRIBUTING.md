@@ -42,6 +42,8 @@ Add targeted regression coverage for behavior changes. For UI or lifecycle chang
 
 In your pull request, explain the problem, the resulting behavior and which checks you ran. Include before/after screenshots for visible UI changes. Report whether a compatibility issue was observed on a live page or only a fixture. When sharing a configuration, remove private room notes first.
 
+The English README uses `docs/screenshots/en/`; refresh its five images with `npm run screenshots:en` after installing Playwright Chromium. The capture command checks English UI text, including the cockpit's Shadow DOM. Keep the Mandarin README linked to its Chinese screenshots in `docs/screenshots/`.
+
 ### Report a bug
 
 Include the extension version, browser and OS, spot/futures route and page language, reproduction steps, expected/actual behavior, and the popup's adapter status. A minimal fixture or a screenshot is useful for selector issues. Share only the information needed to reproduce the problem.
@@ -94,6 +96,8 @@ npm run test:browser
 行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部五组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
 
 Pull Request 请说明问题、最终行为与已执行的验证；界面改动附上前后对比截图。适配问题请区分真实页面观察与测试页面结果。分享配置前请移除私人房间便签。
+
+英文 README 使用 `docs/screenshots/en/` 中的截图。安装 Playwright Chromium 后运行 `npm run screenshots:en` 可更新五张英文截图，并检查页面及驾驶舱 Shadow DOM 的英文文字。中文 README 继续使用 `docs/screenshots/` 中的中文截图。
 
 ### 报告问题
 
