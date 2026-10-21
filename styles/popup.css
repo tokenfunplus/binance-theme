@@ -1,10 +1,15 @@
 .popup-body {
   width: 350px;
   min-width: 350px;
+  max-height: 600px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   background: #f9faf6;
   font-size: 12px;
 }
 .popup-header {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -28,6 +33,9 @@
   height: 32px;
 }
 .popup-main {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 25px;
 }
 .popup-eyebrow {
@@ -122,7 +130,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  margin-top: 15px;
+  margin-top: 12px;
   border-block: 1px solid var(--line);
 }
 .popup-modes .popup-focus { position: relative; display: block; margin: 0; padding: 12px 0; border: 0; }
@@ -169,6 +177,7 @@
   margin-top: 13px;
 }
 .popup-footer {
+  flex-shrink: 0;
   display: flex;
   justify-content: space-between;
   padding: 15px 25px;

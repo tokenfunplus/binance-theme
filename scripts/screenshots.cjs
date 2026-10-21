@@ -5,6 +5,7 @@ const { launchExtension, chooseOption } = require("../tests/helpers/extension.cj
 const B = require("../src/core.js");
 const W = require("../src/workspace.js");
 const quoteScreenshotsOnly = process.argv.includes("--only=quote");
+const popupScreenshotsOnly = process.argv.includes("--only=popup");
 const quoteScreenshots = new Set(["chrome-popup.png", "cockpit-lab.png", "quote-only.png"]);
 
 async function verifyLanguage(page, language) {
@@ -46,6 +47,7 @@ async function captureLanguage(language) {
   });
   let captured = 0;
   const capture = async (page, filename, element) => {
+    if (popupScreenshotsOnly && filename !== "chrome-popup.png") return;
     if (quoteScreenshotsOnly && !quoteScreenshots.has(filename)) return;
     await verifyLanguage(page, language);
     const settings = { path: path.join(output, filename), animations: "disabled" };
@@ -76,6 +78,11 @@ async function captureLanguage(language) {
     await popup.goto(`chrome-extension://${id}/popup.html`);
     await popup.waitForFunction(() => !document.getElementById("popup-enabled").disabled);
     await capture(popup, "chrome-popup.png", popup.locator("body"));
+    if (popupScreenshotsOnly) {
+      assert.deepEqual(errors, [], "browser runtime errors");
+      console.log(`${captured} ${language} README screenshot saved to ${output}`);
+      return;
+    }
 
     await options.bringToFront();
     await options.locator('[data-view="prices"]').click();

@@ -101,6 +101,8 @@
 
 设置页采用石墨灰侧栏、暖白卡片与琥珀金强调色，工具栏弹窗使用同一配色的紧凑深色界面。下拉框和颜色选择均使用自定义弹层，支持键盘操作、输入查找、焦点提示与屏幕边界适配。颜色面板提供常用色板、色相／饱和度／亮度调整及 HEX 校验，支持中英文并尊重系统「减少动态效果」。
 
+弹窗保持在 Chrome 的 600 px 高度限制内，系统字体导致英文标题换成两行时也能完整显示。连接状态或面板说明较长时，仅中间内容区滚动，顶部和底部保持可见。
+
 `npm run test:controls` 单独验证自定义菜单、颜色面板、键盘交互及弹窗尺寸。
 
 ## 界面语言
@@ -198,6 +200,7 @@ npm run test:browser
 安装 Playwright Chromium 后，运行 `npm run screenshots` 可在独立扩展环境中重新生成全部 24 张 README 截图，并检查英文界面翻译。也可用 `npm run screenshots:en` 或 `npm run screenshots:zh` 单独更新对应语言的 12 张截图。
 
 只更新中英文仅报价、插件弹窗与驾驶舱截图时，运行 `node scripts/screenshots.cjs --lang=all --only=quote`。
+只更新两张插件弹窗截图时，运行 `node scripts/screenshots.cjs --lang=all --only=popup`。
 
 可选环境变量 `BROWSER_EXECUTABLE` 指定支持扩展侧载的 Chromium / Chrome for Testing。较新版本的正式 Chrome 已限制命令行侧载，建议使用 Playwright Chromium。
 

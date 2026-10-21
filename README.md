@@ -109,6 +109,8 @@ The choice is saved locally and updates open extension pages and the trading coc
 
 The console pairs a graphite sidebar with neutral cards and amber accents. The compact toolbar popup uses the same palette on a dark surface. Dropdowns and color selection use custom panels, including keyboard navigation, typeahead, visible focus states and viewport-aware placement. Color panels offer a preset palette, hue/saturation/lightness controls and validated HEX input. The controls work in both languages and respect reduced motion.
 
+The popup stays within Chrome's 600 px height limit, including when system fonts wrap the English heading onto two lines. Long connection or panel-status messages scroll inside the main area while the header and footer remain visible.
+
 ## Features
 
 ### Themes and layout
@@ -201,6 +203,7 @@ npm run test:browser
 | `npm run screenshots:en` / `npm run screenshots:zh` | Refresh the 12 screenshots for one language |
 
 To refresh only the quote-only view, toolbar popup and cockpit screenshots in both languages, run `node scripts/screenshots.cjs --lang=all --only=quote`.
+Use `node scripts/screenshots.cjs --lang=all --only=popup` to refresh just the two popup screenshots.
 
 The installed extension uses `chrome.storage.local`. The standalone preview uses `localStorage` and has separate settings; use export/import to move them. Multiple pages observe storage changes, and failed writes are reported in the UI.
 

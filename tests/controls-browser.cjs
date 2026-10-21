@@ -125,7 +125,49 @@ const { launchExtension, chooseOption } = require("./helpers/extension.cjs");
     await popup.setViewportSize({ width: 350, height: 600 });
     await popup.goto(`chrome-extension://${id}/popup.html`);
     await popup.waitForFunction(() => !document.getElementById("popup-language").disabled);
-    assert.ok(await popup.evaluate(() => document.body.scrollHeight <= 600));
+    async function popupMetrics() {
+      return popup.evaluate(() => {
+        const main = document.querySelector(".popup-main"), heading = document.querySelector(".popup-main h1");
+        return {
+          bodyHeight: document.body.scrollHeight,
+          bodyWidth: document.body.scrollWidth,
+          mainHeight: main.clientHeight,
+          mainScrollHeight: main.scrollHeight,
+          headingHeight: heading.getBoundingClientRect().height,
+          headingLineHeight: parseFloat(getComputedStyle(heading).lineHeight),
+          footerTop: document.querySelector(".popup-footer").getBoundingClientRect().top,
+          footerBottom: document.querySelector(".popup-footer").getBoundingClientRect().bottom,
+        };
+      });
+    }
+    const initialMetrics = await popupMetrics();
+    assert.ok(initialMetrics.bodyHeight <= 600, JSON.stringify(initialMetrics));
+    assert.ok(initialMetrics.mainScrollHeight <= initialMetrics.mainHeight + 1, "normal popup content fits without scrolling: " + JSON.stringify(initialMetrics));
+
+    // Ubuntu's fallback font wraps this heading. Exercise that layout on macOS too.
+    await popup.locator(".popup-main h1").evaluate((node) => { node.style.maxWidth = "250px"; });
+    const wrappedMetrics = await popupMetrics();
+    assert.ok(wrappedMetrics.headingHeight >= wrappedMetrics.headingLineHeight * 2 - 1, "the heading wraps onto at least two lines");
+    assert.ok(wrappedMetrics.bodyHeight <= 600 && wrappedMetrics.bodyWidth <= 350 && wrappedMetrics.footerBottom <= 600, JSON.stringify(wrappedMetrics));
+    assert.ok(wrappedMetrics.mainScrollHeight <= wrappedMetrics.mainHeight + 1, "wrapped heading still leaves every control visible: " + JSON.stringify(wrappedMetrics));
+    await popup.screenshot({ animations: "disabled", path: path.join(output, "controls-popup-wrapped.png") });
+
+    await popup.locator("#adapter-status").evaluate((node) => {
+      node.hidden = false;
+      node.textContent = "Recognized panels: chart, orderbook, recent trades, markets and announcements. The current layout supports panel reflow. ".repeat(6);
+    });
+    const longMetrics = await popupMetrics();
+    assert.ok(longMetrics.bodyHeight <= 600 && longMetrics.footerBottom <= 600, JSON.stringify(longMetrics));
+    assert.ok(longMetrics.mainScrollHeight > longMetrics.mainHeight, "long status messages scroll inside the main content");
+    await popup.locator("#open-options").focus();
+    assert.ok(await popup.locator(".popup-main").evaluate((node) => node.scrollTop > 0), "keyboard focus scrolls the settings button into view");
+    const settingsBounds = await popup.locator("#open-options").boundingBox();
+    assert.ok(settingsBounds.y >= 0 && settingsBounds.y + settingsBounds.height <= longMetrics.footerTop);
+    await popup.screenshot({ animations: "disabled", path: path.join(output, "controls-popup-scroll.png") });
+    console.log("Popup sizing:", JSON.stringify({ initial: initialMetrics, wrapped: wrappedMetrics, long: longMetrics }));
+    passed("wrapped English headings fit the 600 px popup limit, and long status messages scroll with keyboard-accessible controls");
+    await popup.reload();
+    await popup.waitForFunction(() => !document.getElementById("popup-language").disabled);
     await popup.locator("#popup-language-control").click();
     const popupBounds = await popup.locator("#popup-language-listbox").boundingBox();
     assert.ok(popupBounds.x >= 0 && popupBounds.x + popupBounds.width <= 350);

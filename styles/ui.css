@@ -198,30 +198,30 @@ button:focus-visible, a:focus-visible, input:focus-visible, .import-zone:focus-w
   background: var(--bg);
   color: var(--ink);
 }
-.popup-header { padding: 18px 22px 16px; background: #20252e; border-color: var(--line); }
-.popup-main { padding: 16px 22px 18px; }
-.popup-language { margin-bottom: 18px; color: #aeb7c6; }
+.popup-header { padding: 14px 22px 12px; background: #20252e; border-color: var(--line); }
+.popup-main { padding: 12px 22px 14px; }
+.popup-language { margin-bottom: 12px; color: #aeb7c6; }
 .popup-language .studio-select { width: 158px; --control-height: 32px; }
 .popup-eyebrow { color: #d3ad5a; font-size: 7px; margin-bottom: 8px; }
 .popup-main h1 { font-size: 20px; letter-spacing: -.25px; line-height: 1.4; }
 .popup-main h1 > span { color: var(--ui-gold); }
 .popup-subtitle { color: #a4aebe; margin-top: 5px; }
-.popup-themes { margin-top: 18px; gap: 9px; }
+.popup-themes { margin-top: 14px; gap: 9px; }
 .popup-theme { height: 39px; border-color: #1c2028; outline-color: #414957; border-radius: 8px; }
 .popup-theme:hover { outline-color: #7b8799; filter: none; }
 .popup-theme.selected { outline-color: var(--ui-gold); box-shadow: 0 0 0 4px #d4aa3e12; }
-.popup-selected { color: #d8dfe9; margin-top: 12px; }
+.popup-selected { color: #d8dfe9; margin-top: 10px; }
 .popup-selected > span:last-child { color: #aab6c8; }
 .popup-selected > span.error { color: #f0a4ad; }
 .popup-focus { padding: 13px 0; margin-top: 15px; border-color: var(--line); }
 .popup-focus strong { color: #e3e8f0; }
 .popup-focus p { color: #9faabc; line-height: 1.5; max-width: 245px; }
-.popup-site-status { color: #aeb9c9; margin-top: 14px; }
+.popup-site-status { color: #aeb9c9; margin-top: 12px; }
 .popup-site-status.connected .local-dot { background: #6fc5a6; }
 .adapter-status { color: #a4b2c5; font-size: 9px; }
-.popup-settings { background: var(--ui-gold); color: #2b2516; margin-top: 16px; border-radius: 9px; }
+.popup-settings { background: var(--ui-gold); color: #2b2516; margin-top: 14px; border-radius: 9px; }
 .popup-settings:hover { background: #f5d06e; }
 .popup-binance { color: #bbc5d4; margin-top: 11px; }
-.popup-footer { background: #191d24; color: #a1adbf; border-color: var(--line); padding: 12px 22px; font-size: 7px; }
+.popup-footer { background: #191d24; color: #a1adbf; border-color: var(--line); padding: 10px 22px; font-size: 7px; }
 .popup-body .switch > span { background: #4b5565; }
 .popup-body .switch input:checked + span { background: #d8aa3b; }
