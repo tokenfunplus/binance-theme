@@ -42,7 +42,7 @@ Add targeted regression coverage for behavior changes. For UI or lifecycle chang
 
 In your pull request, explain the problem, the resulting behavior and which checks you ran. Include before/after screenshots for visible UI changes. Report whether a compatibility issue was observed on a live page or only a fixture. When sharing a configuration, remove private room notes first.
 
-The English README uses `docs/screenshots/en/`; refresh its five images with `npm run screenshots:en` after installing Playwright Chromium. The capture command checks English UI text, including the cockpit's Shadow DOM. Keep the Mandarin README linked to its Chinese screenshots in `docs/screenshots/`.
+After installing Playwright Chromium, run `npm run screenshots` to refresh all 22 README images in isolated extension profiles. Use `npm run screenshots:en` or `npm run screenshots:zh` to refresh one language's 11 images. English images live in `docs/screenshots/en/`; Mandarin images live in `docs/screenshots/`. The command checks the selected language and untranslated English UI text, including the cockpit's Shadow DOM. Capture simulation pages and sample notes only.
 
 ### Report a bug
 
@@ -97,7 +97,7 @@ npm run test:browser
 
 Pull Request 请说明问题、最终行为与已执行的验证；界面改动附上前后对比截图。适配问题请区分真实页面观察与测试页面结果。分享配置前请移除私人房间便签。
 
-英文 README 使用 `docs/screenshots/en/` 中的截图。安装 Playwright Chromium 后运行 `npm run screenshots:en` 可更新五张英文截图，并检查页面及驾驶舱 Shadow DOM 的英文文字。中文 README 继续使用 `docs/screenshots/` 中的中文截图。
+安装 Playwright Chromium 后运行 `npm run screenshots`，可在独立扩展环境中更新全部 22 张 README 截图。`npm run screenshots:en` 或 `npm run screenshots:zh` 可单独更新对应语言的 11 张截图；英文位于 `docs/screenshots/en/`，中文位于 `docs/screenshots/`。脚本检查所选语言，并检查英文页面及驾驶舱 Shadow DOM 是否残留未翻译文字。只截取模拟页面及示例便签。
 
 ### 报告问题
 

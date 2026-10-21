@@ -6,7 +6,14 @@ A local-first Chrome / Edge extension for customizing the appearance and trading
 
 The extension has no third-party runtime dependencies. The extension interface and project documentation are available in English and Mandarin (Simplified Chinese).
 
+- **Make the toolbar yours:** drag with the right-hand handle, remember positions, hide at screen edges, and customize tools, order, size and opacity.
+- **Arrange your workspace:** a 12-column editor with up to 50 undo/redo steps, edge Dock and saved rooms for each pair.
+- **Give quotes a distinct look:** ten digit animations, four lighting effects and three text finishes for the main price and pair name.
+- **Keep controls readable:** nine palettes with automatic text contrast correction for supported buttons.
+
 ## Preview
+
+Screenshots below use the extension's simulation pages. Prices, depth, trades and room notes are examples; no account is connected. The [Chinese README](README.zh-CN.md) has matching Chinese screenshots.
 
 ### Customization console
 
@@ -21,19 +28,53 @@ Switch themes, toggle focus mode, or open the full settings console from the bro
 <img src="docs/screenshots/en/chrome-popup.png" alt="Toolbar popup with nine themes, focus mode, enable switch and settings shortcut" width="350">
 
 <details>
-<summary>Price effects, trading cockpit and spatial editor</summary>
+<summary>Price animations and three text finishes</summary>
 
-**Price effects** combine digit transitions and lighting effects, with a simulated NEARUSDT ticker.
+**Price effects** combine digit transitions, lighting and text finishes, with a simulated NEARUSDT ticker. Aurora is selected in this example.
 
-![Price effects controls and a simulated NEARUSDT ticker](docs/screenshots/en/price-options.png)
+![Price effects console with Aurora text, transition controls and a simulated NEARUSDT ticker](docs/screenshots/en/price-options.png)
+
+**Aurora, Chrome and Gold foil** can decorate both the main price and the pair name. Each card shows the actual CSS effect; choose **Original text** to reset it.
+
+<img src="docs/screenshots/en/text-finishes.png" alt="Text finish cards showing Aurora, Chrome and Gold foil on the price and NEARUSDT pair name" width="360">
+
+**Digit transitions** include crossfade, horizontal push, blur-to-focus, directional wipe, 3D side rotation and four-piece assembly. This menu is scrolled to the later options; ten animations plus instant updates are available.
+
+<img src="docs/screenshots/en/price-transitions.png" alt="Open digit transition menu showing the later animation options, with four-piece assembly selected" width="320">
+
+</details>
+
+<details>
+<summary>Trading cockpit, toolbar customization, layout history and pair rooms</summary>
 
 **Radar cockpit** includes scenes, an edge Dock and an animated depth display. Prices, depth and trades in this screenshot are examples from the simulation lab.
 
-![Simulated Radar cockpit with scenes, edge Dock and a floating depth display](docs/screenshots/en/cockpit-lab.png)
+![Simulated Radar cockpit with a six-dot drag handle, scenes, edge Dock and floating depth terrain](docs/screenshots/en/cockpit-lab.png)
 
-**Spatial editor** supports dragging, resizing, and exact coordinates on a 12-column canvas.
+**Toolbar customization** controls tool visibility and order, icons-only mode, size, opacity and edge auto-hide. Toolbar and depth-window positions are remembered locally; hold the toolbar's right-hand six-dot handle to move it.
 
-![Spatial editor with draggable trading panels and coordinate controls](docs/screenshots/en/spatial-editor.png)
+<img src="docs/screenshots/en/toolbar-customization.png" alt="Toolbar settings with edge auto-hide, icons-only mode, size, opacity, tool ordering and window reset controls" width="450">
+
+**Spatial editor** supports dragging, resizing, exact coordinates and up to 50 undo/redo steps on a 12-column canvas. Both history controls are available in this draft.
+
+![Spatial editor with a resized chart tile, enabled undo and redo buttons and exact coordinate inputs](docs/screenshots/en/spatial-editor.png)
+
+**Pair rooms** save a skin, layout and private note for the selected market. This example contains a saved BTC room and a sample note.
+
+<img src="docs/screenshots/en/pair-room.png" alt="Saved BTC Radar watch room with a sample private note and automatic loading control" width="450">
+
+</details>
+
+<details>
+<summary>More cockpit skins: Arctic and Mecha</summary>
+
+**Arctic** uses cool blue accents and rounded panels.
+
+![Arctic simulated cockpit with ice-blue accents, rounded panels and depth terrain](docs/screenshots/en/skin-arctic.png)
+
+**Mecha** uses amber accents, monospace typography and square panel edges. The same workspace can switch skins from the floating toolbar.
+
+![Mecha simulated cockpit with amber accents, monospace text and square panel borders](docs/screenshots/en/skin-mecha.png)
 
 </details>
 
@@ -144,7 +185,8 @@ npm run test:browser
 | `npm run test:i18n` | Bilingual UI, language persistence, cross-page sync and input preservation |
 | `npm run test:prices` | Price effects and responsive preview tests |
 | `npm run build` | Create a clean unpacked extension and versioned ZIP in `dist/` |
-| `npm run screenshots:en` | Refresh the five English README screenshots in an isolated extension profile |
+| `npm run screenshots` | Refresh all 22 README screenshots in isolated English and Chinese extension profiles |
+| `npm run screenshots:en` / `npm run screenshots:zh` | Refresh the 11 screenshots for one language |
 
 The installed extension uses `chrome.storage.local`. The standalone preview uses `localStorage` and has separate settings; use export/import to move them. Multiple pages observe storage changes, and failed writes are reported in the UI.
 

@@ -4,7 +4,14 @@
 
 一个本地优先的 Chrome / Edge 浏览器扩展，用于定制**币安全球站 `https://www.binance.com`** 的主题与交易界面。
 
+- **工具栏随手安排**：右侧把手拖动、位置记忆、贴边自动隐藏，自定义功能显示、顺序、大小与透明度。
+- **工作区自由布局**：12 列空间编辑器、最多 50 步撤销与重做、边缘 Dock，以及交易对专属房间。
+- **报价更有辨识度**：十种数字动画、四种变化光效，主价格和交易对名称可选三种文字质感。
+- **九套主题保持可读**：支持的按钮会按实际底色自动修正文字对比度。
+
 ## 界面预览
+
+以下截图来自扩展的模拟页面，价格、深度、成交及房间便签均为示例，不连接账户。[英文 README](README.md) 提供对应的英文界面截图。
 
 ### 定制控制台
 
@@ -19,19 +26,53 @@
 <img src="docs/screenshots/chrome-popup.png" alt="Binance Studio Chrome 插件弹窗：九套主题、专注模式、启用开关与定制工作台入口" width="350">
 
 <details>
-<summary>查看价格动效、交易驾驶舱与空间编辑器</summary>
+<summary>查看价格动画与三种文字质感</summary>
 
-**价格动效控制台**：数字切换与光效自由组合，支持 NEARUSDT 模拟涨跌预览。
+**价格动效控制台**：数字切换、变化光效与文字质感自由组合，支持 NEARUSDT 模拟涨跌预览。图中选择了「极光流彩」。
 
-![价格动效设置：三套快捷组合、数字切换方式、变化光效、时长与模拟报价预览](docs/screenshots/price-options.png)
+![价格动效设置：极光流彩主价格、数字切换方式、变化光效、时长与 NEARUSDT 模拟报价预览](docs/screenshots/price-options.png)
+
+**极光流彩、金属镀铬、金箔流光**：同时展示主价格与交易对名称的真实 CSS 效果，点击「原始文字」即可还原。
+
+<img src="docs/screenshots/text-finishes.png" alt="文字质感卡片：极光流彩、金属镀铬与金箔流光，分别展示价格和 NEARUSDT 名称" width="360">
+
+**数字切换菜单**：新增柔和叠化、左右推移、聚焦显影、光幕揭示、立体转轮和碎片聚合。图中滚动到后面的选项，共有十种动画及即时切换可选。
+
+<img src="docs/screenshots/price-transitions.png" alt="展开的数字切换菜单：后半部分动效选项，当前选择碎片聚合" width="320">
+
+</details>
+
+<details>
+<summary>查看驾驶舱、工具栏自定义、布局撤销与交易对房间</summary>
 
 **Radar 驾驶舱**：场景切换、边缘 Dock 与动态盘口地形。截图来自模拟体验页，价格、深度与成交均为示例数据。
 
-![Radar 模拟驾驶舱：顶部场景控制条、右侧边缘 Dock 与悬浮动态盘口地形](docs/screenshots/cockpit-lab.png)
+![Radar 模拟驾驶舱：带六点拖动把手的工具栏、右侧边缘 Dock 与悬浮动态盘口地形](docs/screenshots/cockpit-lab.png)
 
-**空间编辑器**：在 12 列画布中拖动、缩放面板，也可以输入精确格位。
+**工具栏自定义**：控制功能显示与顺序、纯图标模式、大小、透明度及贴边自动隐藏。工具栏与深度窗口的位置保存在本机，按住右侧六点把手即可拖动工具栏。
 
-![空间编辑器：交易面板网格、拖动缩放控件与底部精确位置设置](docs/screenshots/spatial-editor.png)
+<img src="docs/screenshots/toolbar-customization.png" alt="工具栏设置：贴边自动隐藏、纯图标模式、大小、透明度、功能排序与窗口归位" width="450">
+
+**空间编辑器**：在 12 列画布中拖动、缩放面板，也可以输入精确格位，支持最多 50 步撤销与重做。图中草稿的撤销和重做按钮均可用。
+
+![空间编辑器：缩放后的图表卡片、可用的撤销重做按钮，以及底部精确格位输入框](docs/screenshots/spatial-editor.png)
+
+**交易对专属房间**：为当前市场保存皮肤、布局和私人便签。图中是已保存的 BTC 房间及示例便签。
+
+<img src="docs/screenshots/pair-room.png" alt="已保存的 BTC 雷达观察室：房间名称、示例私人便签与自动载入按钮" width="450">
+
+</details>
+
+<details>
+<summary>查看更多驾驶舱皮肤：Arctic 冰蓝与 Mecha 机甲</summary>
+
+**Arctic 极地冰蓝**：冰蓝强调色与圆角面板。
+
+![Arctic 模拟驾驶舱：冰蓝强调色、圆角交易面板与盘口地形](docs/screenshots/skin-arctic.png)
+
+**Mecha 机甲琥珀**：琥珀强调色、等宽字体与直角面板，可在悬浮工具栏中切换同一工作区的皮肤。
+
+![Mecha 模拟驾驶舱：琥珀强调色、等宽文字与直角面板边框](docs/screenshots/skin-mecha.png)
 
 </details>
 
@@ -59,7 +100,7 @@
 
 语言选择保存在本机，并同步到已打开的扩展页面和页内驾驶舱，覆盖控件、预览、使用指南、错误提示、工具提示和无障碍标签。语言是全局偏好，交易对房间不会覆盖它；币安页面语言、用户输入的房间名和私人便签保持原样。独立预览单独保存自己的语言选择。
 
-## v0.3 价格动效
+## 价格与文字特效
 
 新增三种可选文字质感：**极光流彩、金属镀铬、金箔流光**。在「价格动效 → 文字质感」预览和选择，点击「原始文字」关闭。只装饰已识别的主价格、交易对名称和驾驶舱交易对标签，可与数字切换及涨跌光效组合；浅色主题使用较深的渐变色，减少动态效果时保留静态渐变，后台标签页暂停动画。保留原有文本节点、字号与下单输入。效果灵感分别来自 Colorion 的 [Borealis](https://text-effects.colorion.co/effects/aurora-gradient-text-animation/)、[Chromia](https://text-effects.colorion.co/effects/chrome-text-effect/) 和 [Gold-Foil](https://text-effects.colorion.co/effects/gold-text-effect/)，使用独立编写并限定作用范围的 CSS，无外部运行时依赖。
 
@@ -72,7 +113,7 @@
 
 适配已核对的合约页 `.ticker-wrap` 主价格；涨跌额与百分比只使用较轻的光效。价格由原网页更新，动效以短暂的显示层呈现，保留原有文本节点、内联样式与交易输入。连续报价直接替换当前动画，缺失报价会清除显示层；切换交易对后重新建立基准，尊重系统「减少动态效果」，后台隐藏及暂停时恢复静态显示。房间保存与配置导入导出包含动效设置。
 
-## v0.2 驾驶舱
+## 交易驾驶舱
 
 在交易页面顶部的悬浮条中使用新功能。也可以在设置页点击「私人驾驶舱 → 进入模拟驾驶舱」体验，或在本地预览服务中打开 `/lab.html`。模拟页明确使用示例价格、深度与成交；其中的配置调整同样会保存。
 
@@ -141,6 +182,8 @@ npm run test:browser
 浏览器测试实际加载未打包的 Manifest V3 扩展，验证原有功能以及空间编辑、场景过渡、减少动态效果、Dock、聚光灯、交易对房间、SPA 切换、行情重连 / 关闭和模拟体验页。Binance 域名请求返回 `tests/fixtures` 中的重建页面；行情测试在临时测试浏览器的扩展隔离环境中注入 WebSocket 替身，使用公开流格式的固定数据，不访问账户、不提交交易。截图与测试结果在 `output/verification`。CI 在 Node.js 20 和 22 上执行资源检查、单元测试、打包与六组浏览器测试。`npm run test:cockpit` 可单独运行驾驶舱验证。
 
 `npm run test:prices` 单独验证价格动效：真实加载扩展，使用按只读观察重建的合约报价结构，覆盖动效组合、连续跳价、缺失报价、节点替换、交易对切换、减少动态效果、独立关闭、全局暂停及响应式预览。后台恢复逻辑使用模拟的可见性事件验证。
+
+安装 Playwright Chromium 后，运行 `npm run screenshots` 可在独立扩展环境中重新生成全部 22 张 README 截图，并检查英文界面翻译。也可用 `npm run screenshots:en` 或 `npm run screenshots:zh` 单独更新对应语言的 11 张截图。
 
 可选环境变量 `BROWSER_EXECUTABLE` 指定支持扩展侧载的 Chromium / Chrome for Testing。较新版本的正式 Chrome 已限制命令行侧载，建议使用 Playwright Chromium。
 
