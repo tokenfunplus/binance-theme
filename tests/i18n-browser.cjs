@@ -107,6 +107,20 @@ async function untranslated(page, shadowHost) {
     await ui.locator('[data-close="editor-dialog"]').click();
     passed("cockpit translates in place while preserving room names, unsaved notes, editor drafts and Binance inputs");
 
+    await ui.locator("#toolbar-customize").click();
+    const toolbarDialog = ui.locator("#toolbar-dialog");
+    await toolbarDialog.locator('[data-toolbar-pref="iconsOnly"]').check();
+    await chooseOption(options, "language", "en");
+    await site.waitForFunction(() => document.getElementById("bst-cockpit").lang === "en");
+    assert.equal(await toolbarDialog.locator('[data-toolbar-pref="iconsOnly"]').isChecked(), true);
+    assert.deepEqual(await untranslated(site, "#bst-cockpit"), []);
+    await chooseOption(options, "language", "zh-CN");
+    await site.waitForFunction(() => document.getElementById("bst-cockpit").lang === "zh-CN");
+    assert.equal(await toolbarDialog.locator('[data-toolbar-pref="iconsOnly"]').isChecked(), true);
+    assert.match(await toolbarDialog.locator(".toolbar-items").textContent(), /场景切换/);
+    await site.keyboard.press("Escape");
+    passed("toolbar settings translate without losing unsaved visibility or appearance choices");
+
     await chooseOption(options, "language", "en");
     await options.locator('[data-view="profiles"]').click();
     await options.locator("#import-file").setInputFiles({

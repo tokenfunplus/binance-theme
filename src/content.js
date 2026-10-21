@@ -20,6 +20,79 @@
     room = null;
   const marked = new Set(),
     animations = new Set();
+  const contrastMarked = new Set();
+  function clearButtonContrast() {
+    for (const node of contrastMarked) node.removeAttribute("data-bst-button-ink");
+    contrastMarked.clear();
+  }
+  function repairButtonContrast(buttonRoot = null) {
+    if (buttonRoot) {
+      for (const node of contrastMarked)
+        if (buttonRoot.contains(node)) {
+          node.removeAttribute("data-bst-button-ink");
+          contrastMarked.delete(node);
+        }
+    } else clearButtonContrast();
+    const parse = (color) => {
+      const match = color.match(/^rgba?\(([^)]+)\)$/);
+      if (!match) return null;
+      const values = match[1].match(/[\d.]+/g)?.map(Number);
+      return values?.length >= 3 ? [...values.slice(0, 3), values[3] ?? 1] : null;
+    };
+    const background = (node) => {
+      const result = [0, 0, 0];
+      let alpha = 0;
+      for (let current = node; current && alpha < 0.999; current = current.parentElement) {
+        const style = getComputedStyle(current);
+        if (style.backgroundImage !== "none") return null;
+        const color = parse(style.backgroundColor);
+        if (!color) return null;
+        const weight = color[3] * (1 - alpha);
+        color.slice(0, 3).forEach((channel, i) => { result[i] += channel * weight; });
+        alpha += weight;
+      }
+      return alpha >= 0.999 ? result : null;
+    };
+    const selector = 'button,[role="button"],.bn-button,.bn-web-button';
+    const repairs = [];
+    for (const button of buttonRoot ? [buttonRoot] : document.querySelectorAll(selector)) {
+      if (!button.getClientRects().length || button.closest("#bst-cockpit,#bst-price-effects")) continue;
+      for (const node of [button, ...button.querySelectorAll("*")]) {
+        if (node.namespaceURI !== "http://www.w3.org/1999/xhtml" || node.closest(selector) !== button ||
+            ![...node.childNodes].some((child) => child.nodeType === 3 && child.textContent.trim())) continue;
+        const style = getComputedStyle(node);
+        if (style.visibility !== "visible" || style.display === "none") continue;
+        const fill = parse(style.webkitTextFillColor || style.color), bg = background(node);
+        if (!fill || !bg || fill[3] === 0) continue;
+        const foreground = fill.slice(0, 3).map((channel, i) => channel * fill[3] + bg[i] * (1 - fill[3]));
+        const ink = B.readableButtonInk(foreground, bg);
+        if (ink) repairs.push([node, ink]);
+      }
+    }
+    // Read first, then write: nested labels must be measured without inheriting
+    // a correction applied to their parent during the same scan.
+    for (const [node, ink] of repairs) {
+      node.setAttribute("data-bst-button-ink", ink);
+      contrastMarked.add(node);
+    }
+  }
+  let contrastFrame = 0;
+  const contrastPending = new Set();
+  const scheduleButtonContrast = (event) => {
+    if (!settings.enabled) return;
+    const button = event.target.closest?.('button,[role="button"],.bn-button,.bn-web-button');
+    if (!button || button.closest("#bst-cockpit,#bst-price-effects")) return;
+    contrastPending.add(button);
+    if (!contrastFrame)
+      contrastFrame = requestAnimationFrame(() => {
+        contrastFrame = 0;
+        if (settings.enabled)
+          for (const node of contrastPending) if (node.isConnected) repairButtonContrast(node);
+        contrastPending.clear();
+      });
+  };
+  for (const type of ["pointerover", "pointerout", "focusin", "focusout", "transitionend", "animationend"])
+    document.addEventListener(type, scheduleButtonContrast, { capture: true, passive: true });
   function cleanMarkers() {
     for (const element of marked)
       for (const name of [
@@ -200,6 +273,10 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
     layout = effective.layout;
     room = effective.room;
     if (!settings.enabled) {
+      clearButtonContrast();
+      cancelAnimationFrame(contrastFrame);
+      contrastFrame = 0;
+      contrastPending.clear();
       priceEffects?.destroy();
       priceEffects = null;
       cockpit?.destroy();
@@ -251,6 +328,7 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
       B.reactGridCSS(settings, gridAreas, layout) +
       effectsCSS();
     if (style.textContent !== css) style.textContent = css;
+    repairButtonContrast();
     if (route && document.body) {
       if (!cockpit)
         cockpit = new StudioCockpit({

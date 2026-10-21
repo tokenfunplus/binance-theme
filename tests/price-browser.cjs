@@ -185,8 +185,54 @@ const root = path.resolve(__dirname, "..");
       );
     }
     passed(
-      "all four digit transitions and four lighting effects render with upward quote feedback",
+      "existing digit transitions and lighting effects render with upward quote feedback",
     );
+    await setting("priceGlow", "none");
+    await setting("priceDuration", 600);
+    await setting("priceIntensity", "strong");
+    for (const mode of ["fade", "push", "focus", "wipe", "orbit", "shatter"]) {
+      await setting("priceTransition", mode);
+      const value = (number++ / 1000).toFixed(3);
+      await price(value);
+      const stage = site.locator(`#bst-price-effects .stage[data-transition="${mode}"]`);
+      await stage.waitFor();
+      const animation = await stage.evaluate((element) => {
+        const changed = element.querySelector('.glyph[data-changed="true"]');
+        const animations = [...changed.querySelectorAll(".digit")].flatMap((digit) => digit.getAnimations());
+        return {
+          frames: animations.flatMap((animation) => animation.effect.getKeyframes()),
+          durations: animations.map((animation) => animation.effect.getTiming().duration),
+          fragments: element.querySelectorAll(".fragment").length,
+          changed: element.querySelectorAll('.glyph[data-changed="true"]').length,
+          stationary: [...element.querySelectorAll('.glyph[data-changed="false"] .digit')].every((digit) => !digit.getAnimations().length),
+        };
+      });
+      assert.ok(animation.frames.length > 0, mode);
+      assert.ok(animation.durations.every((duration) => duration === 600), mode);
+      assert.equal(animation.stationary, true, mode);
+      if (mode === "fade") assert.ok(animation.frames.some((frame) => frame.opacity === "0"));
+      if (mode === "push") assert.ok(animation.frames.some((frame) => frame.transform?.includes("translateX")));
+      if (mode === "focus") assert.ok(animation.frames.some((frame) => frame.filter?.includes("blur")));
+      if (mode === "wipe") assert.ok(animation.frames.some((frame) => frame.clipPath?.includes("100%")));
+      if (mode === "orbit") assert.ok(animation.frames.some((frame) => frame.transform?.includes("rotateY")));
+      if (mode === "shatter") assert.equal(animation.fragments, animation.changed * 4);
+      assert.equal(await stage.getAttribute("data-direction"), "up");
+      const lower = ((number - 3) / 1000).toFixed(3);
+      await price(lower);
+      await site.waitForFunction(({ mode, lower }) => {
+        const stage = document.getElementById("bst-price-effects")?.shadowRoot.querySelector(`.stage[data-transition="${mode}"]`);
+        return stage?.dataset.direction === "down" && [...stage.querySelectorAll(".glyph")].map((glyph) => glyph.lastChild.textContent).join("") === lower;
+      }, { mode, lower });
+      assert.equal(await layer.count(), 1);
+      assert.equal(await site.locator("#ticker-price").getAttribute("style"), original);
+      assert.equal(await site.locator("#futures-amount").inputValue(), "0.1");
+      await site.waitForFunction(() => !document.querySelector("[data-bst-price-muted]"));
+      await options.reload();
+      await options.waitForFunction(() => !document.getElementById("enabled").disabled);
+      await options.locator("#price-demo-auto").uncheck();
+      assert.equal(await options.locator("#priceTransition").inputValue(), mode);
+    }
+    passed("six new transitions use distinct animations, preserve unchanged digits, replace rapid up/down quotes and persist after reload");
     await setting("priceTransition", "roll");
     await setting("priceGlow", "none");
     await setting("priceDuration", 600);
@@ -376,6 +422,57 @@ const root = path.resolve(__dirname, "..");
     passed(
       "quick mixes persist across reload; settings preview fits desktop and mobile and explains reduced motion",
     );
+    await options.emulateMedia({ reducedMotion: "no-preference" });
+    await options.setViewportSize({ width: 1440, height: 1000 });
+    await site.locator("#futures-amount").fill("0.25");
+    await site.locator("#ticker-price").evaluate((node) => { window.originalQuoteText = node.firstChild; });
+    async function textFinish(value) {
+      await options.locator(`[data-choice="textEffect"][data-value="${value}"]`).click();
+      await options.waitForFunction(({ key, value }) => new Promise((resolve) =>
+        chrome.storage.local.get(key, (data) => resolve(data[key]?.textEffect === value))), { key: B.STORAGE_KEY, value });
+      if (value === "none") await site.waitForFunction(() => !document.querySelector("[data-bst-text-owner]"));
+      else await site.locator(`#ticker-price[data-bst-text-effect="${value}"]`).waitFor();
+    }
+    let quoteStep = 60;
+    for (const finish of ["aurora", "chrome", "gold"]) {
+      await setting("priceTransition", { aurora: "fade", chrome: "focus", gold: "shatter" }[finish]);
+      await textFinish(finish);
+      assert.equal(await site.locator(".ticker-wrap > strong").getAttribute("data-bst-text-effect"), finish);
+      assert.equal(await site.locator("#bst-cockpit #symbol-label").getAttribute("data-bst-text-effect"), finish);
+      assert.equal(await site.locator("#ticker-mark[data-bst-text-effect], #ticker-change[data-bst-text-effect], #ticker-percent[data-bst-text-effect]").count(), 0);
+      assert.match(await site.locator("#ticker-price").evaluate((node) => getComputedStyle(node).backgroundImage), /linear-gradient/);
+      await price(`2,640.${quoteStep++}`);
+      await site.locator(`#bst-price-effects .digit[data-bst-text-effect="${finish}"]`).first().waitFor();
+      assert.equal(await site.locator("#ticker-price").evaluate((node) => getComputedStyle(node).backgroundImage), "none");
+      await site.waitForFunction(() => !document.querySelector("[data-bst-price-muted]"));
+      assert.equal(await site.locator("#ticker-price").evaluate((node) => node.firstChild === window.originalQuoteText), true);
+      assert.equal(await site.locator("#ticker-price").getAttribute("style"), original);
+      assert.equal(await site.locator("#futures-amount").inputValue(), "0.25");
+    }
+    await options.locator(".text-effect-cards").screenshot({ path: path.join(output, "text-effects-three.png") });
+    passed("Aurora, Chrome and Gold foil style only main quotes and pair names, compose with new digit transitions and preserve native text and order inputs");
+    await site.emulateMedia({ reducedMotion: "reduce" });
+    await site.waitForFunction(() => getComputedStyle(document.getElementById("ticker-price")).animationName === "none");
+    assert.match(await site.locator("#ticker-price").evaluate((node) => getComputedStyle(node).backgroundImage), /linear-gradient/);
+    await site.emulateMedia({ forcedColors: "active" });
+    await site.waitForFunction(() => getComputedStyle(document.getElementById("ticker-price")).backgroundImage === "none");
+    assert.equal(await site.locator("#ticker-price").evaluate((node) => getComputedStyle(node).webkitTextFillColor === getComputedStyle(node).color), true);
+    await site.emulateMedia({ reducedMotion: "no-preference", forcedColors: "none" });
+    await options.locator('[data-view="appearance"]').click();
+    await options.locator('[data-preset="paper"]').click();
+    await site.waitForFunction(() => getComputedStyle(document.documentElement).getPropertyValue("--color-Bg").trim() === "#faf9f6");
+    await site.waitForFunction(() => getComputedStyle(document.getElementById("ticker-price")).backgroundImage.includes("112, 67, 0"));
+    await options.reload();
+    await options.waitForFunction(() => !document.getElementById("enabled").disabled);
+    await options.locator('[data-view="prices"]').click();
+    assert.equal(await options.locator('[data-choice="textEffect"][data-value="gold"]').getAttribute("aria-pressed"), "true");
+    await textFinish("none");
+    assert.equal(await site.locator("#bst-price-effects-text-style").count(), 0);
+    await textFinish("aurora");
+    await setting("enabled", false);
+    await site.waitForFunction(() => !document.querySelector("[data-bst-text-owner]"));
+    assert.equal(await site.locator("#bst-price-effects-text-style").count(), 0);
+    passed("text finishes persist, adapt to light palettes, stop for reduced motion, respect forced colors and clean up when disabled");
     assert.deepEqual(errors, []);
     await fs.writeFile(
       path.join(output, "price-results.json"),

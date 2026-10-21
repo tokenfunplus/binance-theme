@@ -80,11 +80,13 @@
       this.previous = new Map();
       this.marked = new Set();
       this.animations = new Set();
+      this.textNodes = new Set();
       this.media = matchMedia("(prefers-reduced-motion: reduce)");
       this.observer = new MutationObserver(() => this.schedule());
       this.reset = () => {
         this.clear();
         this.baseline();
+        this.updateText();
       };
       this.onKey = (event) => {
         if (event.key === "Alt" || event.key === "Escape") this.reset();
@@ -105,6 +107,8 @@
         next.priceDuration,
         next.priceIntensity,
         next.priceChangedOnly,
+        next.textEffect,
+        next.preset,
         next.buy,
         next.sell,
       ]);
@@ -115,6 +119,9 @@
         this.settings = next;
         this.signature = signature;
         this.baseline();
+        this.updateText();
+        if (this.host?.isConnected)
+          this.host.shadowRoot.querySelector("style").textContent = css + scope.BinanceStudio.textEffectCSS(".digit", next);
         if (root && next.enabled && next.priceEffectsEnabled)
           this.observer.observe(root, {
             childList: true,
@@ -147,6 +154,7 @@
         return;
       }
       const current = targets(this.root);
+      this.updateText();
       const changes = current.map((target) => ({
         ...target,
         old: this.previous.get(target.node),
@@ -196,7 +204,7 @@
       this.host.setAttribute("aria-hidden", "true");
       const shadow = this.host.attachShadow({ mode: "open" });
       const style = document.createElement("style");
-      style.textContent = css;
+      style.textContent = css + scope.BinanceStudio.textEffectCSS(".digit", this.settings);
       this.layers = document.createElement("div");
       shadow.append(style, this.layers);
       this.markerStyle = document.createElement("style");
@@ -204,7 +212,7 @@
       this.markerStyle.textContent =
         '[data-bst-price-muted="' +
         this.id +
-        '"] { color:transparent!important; -webkit-text-fill-color:transparent!important; text-shadow:none!important; }';
+        '"] { color:transparent!important; -webkit-text-fill-color:transparent!important; text-shadow:none!important; background-image:none!important; }';
       (document.head || document.documentElement).append(this.markerStyle);
       document.body.append(this.host);
     }
@@ -283,7 +291,7 @@
         const box = range.getBoundingClientRect();
         const glyph = document.createElement("span");
         glyph.className = "glyph";
-        if (main && this.settings.priceTransition === "bounce")
+        if (main && ["bounce", "shatter"].includes(this.settings.priceTransition))
           glyph.style.overflow = "visible";
         Object.assign(glyph.style, {
           left: box.left - rect.left + "px",
@@ -294,6 +302,7 @@
         const digit = document.createElement("span");
         digit.className = "digit";
         digit.textContent = next[index];
+        if (main && this.settings.textEffect !== "none") digit.dataset.bstTextEffect = this.settings.textEffect;
         glyph.append(digit);
         const previousIndex = index + old.length - next.length;
         const previous = old[previousIndex];
@@ -331,6 +340,65 @@
               { transform: `scale(${1 + 0.2 * amount})`, offset: 0.35 },
               { transform: "scale(1)" },
             ]);
+          } else if (mode === "fade") {
+            this.outgoing(glyph, digit, previous, [
+              { opacity: 1 }, { opacity: 0 },
+            ]);
+            this.animate(digit, [{ opacity: 0 }, { opacity: 1 }]);
+          } else if (mode === "push") {
+            this.outgoing(glyph, digit, previous, [
+              { transform: "translateX(0)" },
+              { transform: `translateX(${-offset * 100}%)` },
+            ]);
+            this.animate(digit, [
+              { transform: `translateX(${offset * 100}%)` },
+              { transform: "translateX(0)" },
+            ]);
+          } else if (mode === "focus") {
+            this.outgoing(glyph, digit, previous, [
+              { filter: "blur(0px)", opacity: 1 },
+              { filter: `blur(${3 + 3 * amount}px)`, opacity: 0 },
+            ]);
+            this.animate(digit, [
+              { filter: `blur(${3 + 3 * amount}px)`, opacity: 0, transform: `scale(${1 + 0.14 * amount})` },
+              { filter: "blur(0px)", opacity: 1, transform: "scale(1)" },
+            ]);
+          } else if (mode === "wipe") {
+            const hidden = offset > 0 ? "inset(100% 0 0 0)" : "inset(0 0 100% 0)";
+            const cleared = offset > 0 ? "inset(0 0 100% 0)" : "inset(100% 0 0 0)";
+            this.outgoing(glyph, digit, previous, [
+              { clipPath: "inset(0 0 0 0)" }, { clipPath: cleared },
+            ]);
+            this.animate(digit, [
+              { clipPath: hidden }, { clipPath: "inset(0 0 0 0)" },
+            ]);
+          } else if (mode === "orbit") {
+            this.outgoing(glyph, digit, previous, [
+              { transform: "rotateY(0deg) translateZ(0px)", opacity: 1 },
+              { transform: `rotateY(${-offset * 90}deg) translateZ(${-8 * amount}px)`, opacity: 0 },
+            ]);
+            this.animate(digit, [
+              { transform: `rotateY(${offset * 90}deg) translateZ(${-8 * amount}px)`, opacity: 0 },
+              { transform: "rotateY(0deg) translateZ(0px)", opacity: 1 },
+            ]);
+          } else if (mode === "shatter") {
+            this.outgoing(glyph, digit, previous, [
+              { opacity: 1, transform: "scale(1)" },
+              { opacity: 0, transform: `scale(${1 - 0.1 * amount})`, offset: 0.45 },
+              { opacity: 0, transform: "scale(1)" },
+            ]);
+            for (const [x, y] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+              const fragment = digit.cloneNode(true);
+              fragment.classList.add("fragment");
+              fragment.style.clipPath = `inset(${y < 0 ? 0 : 50}% ${x < 0 ? 50 : 0}% ${y < 0 ? 50 : 0}% ${x < 0 ? 0 : 50}%)`;
+              glyph.insertBefore(fragment, digit);
+              this.animate(fragment, [
+                { transform: `translate(${x * (4 + 8 * amount)}px,${y * (4 + 8 * amount)}px) rotate(${x * y * 12 * amount}deg)`, opacity: 0 },
+                { transform: "translate(0px,0px) rotate(0deg)", opacity: 1, offset: 0.8 },
+                { transform: "translate(0px,0px) rotate(0deg)", opacity: 0 },
+              ]);
+            }
+            this.animate(digit, [{ opacity: 0 }, { opacity: 0, offset: 0.8 }, { opacity: 1 }]);
           }
         }
         stage.append(glyph);
@@ -387,6 +455,14 @@
       (this.displayed ||= new Map()).set(node, next);
       node.setAttribute("data-bst-price-muted", this.id);
     }
+    outgoing(glyph, digit, previous, frames) {
+      if (!/\d/.test(previous || "")) return;
+      const outgoing = digit.cloneNode();
+      outgoing.textContent = previous;
+      outgoing.classList.add("outgoing");
+      glyph.insertBefore(outgoing, digit);
+      this.animate(outgoing, frames);
+    }
     clear() {
       clearTimeout(this.cleanup);
       for (const animation of this.animations) animation.cancel();
@@ -396,6 +472,35 @@
       this.marked.clear();
       this.displayed?.clear();
       this.layers?.replaceChildren();
+    }
+    updateText() {
+      const active = this.root?.isConnected && this.settings?.enabled && this.settings.priceEffectsEnabled && this.settings.textEffect !== "none";
+      const main = active ? targets(this.root).find((target) => target.main)?.node : null;
+      const symbol = active ? this.root.querySelector('[data-studio-symbol], .ticker-wrap > strong, .ticker-wrap .symbol-name') : null;
+      const nodes = new Set([main, symbol].filter((node) => node && !node.childElementCount &&
+        !node.closest('input,textarea,select,[contenteditable="true"]') && node.textContent.trim().length <= 64));
+      for (const node of this.textNodes)
+        if (!nodes.has(node) && node.getAttribute("data-bst-text-owner") === this.id) {
+          for (const name of ["data-bst-text-effect", "data-bst-text-owner", "data-bst-text-paused"]) node.removeAttribute(name);
+        }
+      this.textNodes = nodes;
+      for (const node of nodes) {
+        node.setAttribute("data-bst-text-effect", this.settings.textEffect);
+        node.setAttribute("data-bst-text-owner", this.id);
+        node.toggleAttribute("data-bst-text-paused", document.hidden);
+      }
+      if (!active) {
+        this.textStyle?.remove();
+        this.textStyle = null;
+        return;
+      }
+      if (!this.textStyle) {
+        this.textStyle = document.createElement("style");
+        this.textStyle.id = this.id + "-text-style";
+        (document.head || document.documentElement).append(this.textStyle);
+      }
+      const rules = scope.BinanceStudio.textEffectCSS(`[data-bst-text-owner="${this.id}"]`, this.settings);
+      if (this.textStyle.textContent !== rules) this.textStyle.textContent = rules;
     }
     destroy() {
       this.clear();
@@ -408,6 +513,8 @@
       window.removeEventListener("keydown", this.onKey);
       this.host?.remove();
       this.markerStyle?.remove();
+      this.settings = null;
+      this.updateText();
     }
   }
   scope.StudioPriceEffects = PriceEffects;

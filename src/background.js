@@ -9,11 +9,16 @@ chrome.runtime.onInstalled.addListener(async () => {
 // Serialize writes from multiple trading tabs so one room cannot overwrite another.
 let workspaceWrites = Promise.resolve();
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
-  if (message?.type !== "bst:workspace" || sender.id !== chrome.runtime.id)
+  if (!["bst:workspace", "bst:cockpit"].includes(message?.type) || sender.id !== chrome.runtime.id)
     return;
   workspaceWrites = workspaceWrites
     .catch(() => {})
     .then(async () => {
+      if (message.type === "bst:cockpit") {
+        const preferences = await StudioWorkspace.writeCockpitPatch(message.patch);
+        respond({ ok: true, preferences });
+        return;
+      }
       const [base, desktop] = await Promise.all([
         BinanceStudio.readSettings(),
         StudioWorkspace.read(),

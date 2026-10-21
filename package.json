@@ -20,11 +20,11 @@
     "test": "node --test tests/*.test.cjs",
     "build": "node scripts/build.cjs",
     "screenshots:en": "node scripts/screenshots.cjs",
-    "test:browser": "node tests/browser.cjs && node tests/cockpit-browser.cjs && node tests/price-browser.cjs && node tests/i18n-browser.cjs && node tests/controls-browser.cjs",
+    "test:browser": "node tests/browser.cjs && node tests/cockpit-browser.cjs && node tests/cockpit-tools-browser.cjs && node tests/price-browser.cjs && node tests/i18n-browser.cjs && node tests/controls-browser.cjs",
     "test:controls": "node tests/controls-browser.cjs",
     "test:i18n": "node tests/i18n-browser.cjs",
     "test:prices": "node tests/price-browser.cjs",
-    "test:cockpit": "node tests/cockpit-browser.cjs"
+    "test:cockpit": "node tests/cockpit-browser.cjs && node tests/cockpit-tools-browser.cjs"
   },
   "devDependencies": {
     "playwright": "^1.56.1"

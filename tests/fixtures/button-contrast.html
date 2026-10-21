@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <title>Button contrast regression fixture — synthetic controls</title>
+    <style>
+      body { margin:0; padding:40px; font:15px sans-serif; }
+      h1 { font-size:20px; margin:0 0 25px; }
+      .theme-root { --color-bg3:#f5f5f5; --color-textPrimary:#181a20; }
+      section { padding:20px; margin:0 0 14px; background:var(--color-CardBg); border:1px solid var(--color-Line); border-radius:10px; }
+      h2 { font-size:13px; font-weight:500; margin:0 0 14px; }
+      .buttons { display:flex; flex-wrap:wrap; gap:12px; }
+      button,[role=button] { font:inherit; cursor:pointer; border:0; border-radius:6px; padding:10px 20px; background:#e8e8e8; color:inherit; }
+      .label { color:var(--color-PrimaryText); -webkit-text-fill-color:var(--color-PrimaryText); }
+      .modern { background:var(--color-bg3); color:var(--color-textPrimary); }
+      .transparent { background:transparent; color:var(--color-PrimaryText); }
+      .light-panel { background:white; padding:12px; }
+      .buy { background:var(--color-Buy); color:white; }
+      .sell { background:var(--color-sell); color:white; }
+      .primary { background:var(--color-primary); color:var(--color-TextOnYellow); }
+      .translucent { background:rgba(255,255,255,.9); color:var(--color-PrimaryText); }
+      #hover-control:hover,#hover-control:focus { background:#080808; }
+      #hover-control { transition:background-color .12s; }
+      button:disabled { opacity:.45; cursor:default; }
+    </style>
+  </head>
+  <body>
+    <div class="theme-root">
+      <h1>合约按钮对比度 · 重建测试页面</h1>
+      <section class="orderform">
+        <h2>下单区 · 保证金模式与杠杆</h2>
+        <div class="buttons">
+          <button id="margin-mode" data-contrast-check>逐仓</button>
+          <button id="leverage-mode"><span class="label" data-contrast-check>15x</span></button>
+          <div id="role-control" role="button" tabindex="0" data-contrast-check>设置</div>
+          <button id="modern-control" class="modern" data-contrast-check>新版按钮</button>
+          <button id="hover-control" data-contrast-check>悬停／聚焦</button>
+        </div>
+      </section>
+      <section class="bn-web-table">
+        <h2>持仓区 · 平仓与止盈止损</h2>
+        <div class="buttons">
+          <button id="close-position" data-contrast-check>市价全平</button>
+          <button id="take-profit"><span class="label" data-contrast-check>止盈／止损</span></button>
+          <button class="transparent" id="transparent-control" data-contrast-check>反向开仓</button>
+          <button id="disabled-control" disabled>暂不可用</button>
+        </div>
+      </section>
+      <section>
+        <h2>账户区与交易按钮 · 浅色及半透明底色</h2>
+        <div class="buttons">
+          <button id="account-transfer" class="translucent" data-contrast-check>划转</button>
+          <button class="buy" data-contrast-check>开多</button>
+          <button class="sell" data-contrast-check>开空</button>
+          <button class="primary" data-contrast-check>确认</button>
+          <div class="light-panel"><button class="transparent" data-contrast-check>浅底上的透明按钮</button></div>
+          <input id="untouched-amount" value="0.125" aria-label="模拟下单数量">
+        </div>
+      </section>
+    </div>
+  </body>
+</html>

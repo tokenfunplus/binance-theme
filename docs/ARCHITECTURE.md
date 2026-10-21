@@ -33,6 +33,8 @@ Shared runtime modules expose APIs on `globalThis`: `StudioStorage`, `StudioI18n
 
 The settings key remains `binance-studio.settings.v1`; the desktop key remains `binance-studio.desktop.v1`. These storage-key versions are independent of the JSON export version. v2 exports combine settings with desktop layouts, rooms and notes; v1 settings imports remain supported.
 
+Device-specific window positions and toolbar customization use `binance-studio.cockpit.v1`, normalized by `workspace.js`. They are independent of rooms and exported bundles. Installed content scripts send partial `bst:cockpit` updates through the background queue so concurrent preference writes preserve unrelated fields; the preview uses its page-local queue. Positions are clamped to the current viewport when displayed. The editor keeps up to 50 undoable draft edits in memory, with one snapshot per completed drag, and resets history when reopened.
+
 Installed extensions persist through `chrome.storage.local`; standalone pages use origin-local `localStorage`. Storage change subscriptions allow other open pages to react. Chrome supports writing both keys in one call. The preview writes desktop first and settings second; `localStorage` does not provide a transaction across keys, so a storage failure may leave a partial preview write. Read and write failures propagate to the UI; malformed cross-tab JSON events are ignored.
 
 Trading content scripts send workspace operations to the background service worker, which queues them, reads current settings and desktop, calls `prepareMutation`, then saves the result. This queue serializes trading-tab room writes. Options and popup saves use their own page-local queues; the background queue does not serialize every possible settings write across extension pages.
@@ -41,7 +43,7 @@ Room settings override appearance and layout for a recognized spot/futures pair,
 
 ### Verification and packaging
 
-Unit tests run with Node's test runner. The five browser suites share `tests/helpers/extension.cjs`, which creates an isolated browser profile, launches the extension, observes page errors and cleans up after success or failure. Binance navigation is fulfilled by fixtures and market packets are simulated. These tests validate known DOM structures rather than all live Binance pages.
+Unit tests run with Node's test runner. The six browser suites share `tests/helpers/extension.cjs`, which creates an isolated browser profile, launches the extension, observes page errors and cleans up after success or failure. Binance navigation is fulfilled by fixtures and market packets are simulated. These tests validate known DOM structures rather than all live Binance pages.
 
 `scripts/check.cjs` checks syntax, resources, dependency order and version agreement. `scripts/build.cjs` builds an unpacked extension and ZIP from the same staged files, includes bilingual documentation and the license, and prevents deleted source files from lingering in the previous unpacked build. Development dependencies, tests, local output and repository metadata are excluded from the release.
 
@@ -76,6 +78,8 @@ Binance Studio 使用原生 JavaScript、HTML 与 CSS，遵循 Manifest V3。源
 
 设置键仍为 `binance-studio.settings.v1`，桌面键仍为 `binance-studio.desktop.v1`，与导出 JSON 的格式版本独立。v2 导出包含设置、布局、房间和便签，并继续支持 v1 设置导入。
 
+窗口位置与工具栏自定义使用独立的设备偏好键 `binance-studio.cockpit.v1`，由 `workspace.js` 校验，不随房间或配置文件导出。扩展内容脚本通过后台队列提交 `bst:cockpit` 局部更新，并发写入会保留其他字段；预览使用页面内保存队列。显示时按当前视口限制窗口位置。编辑器在内存中保留最多 50 步草稿修改，一次完整拖动仅记录一个快照，重新打开时重建撤销历史。
+
 扩展使用 `chrome.storage.local`，独立预览使用当前来源的 `localStorage`。存储监听通知其他打开的页面。Chrome 支持一次写入两个键；预览先写工作区，再写设置。`localStorage` 无跨键事务，失败可能留下部分写入。读写错误传递给界面；其他标签页发来的损坏 JSON 事件会被忽略。
 
 交易页将工作区操作发送给后台队列。后台依次读取最新设置与工作区，调用 `prepareMutation` 后保存结果，避免交易标签页的房间写入互相覆盖。设置页和弹窗使用各自页面的保存队列；后台队列不覆盖所有扩展页面的并发写入。
@@ -84,6 +88,6 @@ Binance Studio 使用原生 JavaScript、HTML 与 CSS，遵循 Manifest V3。源
 
 ### 验证与打包
 
-单元测试使用 Node 内置测试运行器。五组浏览器测试共用 `tests/helpers/extension.cjs`，统一创建独立配置目录、加载扩展、收集页面错误，并在成功或失败后清理。币安页面由测试页面替代，行情使用模拟包；覆盖范围是已知页面结构。
+单元测试使用 Node 内置测试运行器。六组浏览器测试共用 `tests/helpers/extension.cjs`，统一创建独立配置目录、加载扩展、收集页面错误，并在成功或失败后清理。币安页面由测试页面替代，行情使用模拟包；覆盖范围是已知页面结构。
 
 `scripts/check.cjs` 检查语法、资源、依赖顺序与版本一致性。`scripts/build.cjs` 从相同临时文件生成未打包目录和 ZIP，包含双语文档和许可证，并避免旧输出残留已删除源码。发布包不包含开发依赖、测试、本地产物与仓库元数据。

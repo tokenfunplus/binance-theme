@@ -4,6 +4,55 @@
   const storage = scope.StudioStorage || require("./storage.js");
   const I = scope.StudioI18n || require("./i18n.js");
   const KEY = "binance-studio.desktop.v1";
+  const COCKPIT_KEY = "binance-studio.cockpit.v1";
+  const TOOLBAR_ITEMS = Object.freeze(["scenes", "skin", "layout", "dock", "depth", "room"]);
+  function normalizeCockpit(input) {
+    const source = input && typeof input === "object" ? input : {};
+    const point = (value, edge = false) => {
+      if (!value || !Number.isFinite(value.x) || !Number.isFinite(value.y)) return null;
+      return {
+        x: Math.max(0, Math.min(100000, Math.round(value.x))),
+        y: Math.max(0, Math.min(100000, Math.round(value.y))),
+        ...(edge ? { edge: ["left", "right", "top", "bottom"].includes(value.edge) ? value.edge : null } : {}),
+      };
+    };
+    const order = Array.isArray(source.order)
+      ? [...new Set(source.order.filter((item) => TOOLBAR_ITEMS.includes(item)))] : [];
+    return {
+      bar: point(source.bar, true),
+      depth: point(source.depth),
+      compact: source.compact === true,
+      autoHide: source.autoHide !== false,
+      iconsOnly: source.iconsOnly === true,
+      size: ["small", "normal", "large"].includes(source.size) ? source.size : "normal",
+      opacity: Number.isFinite(source.opacity) ? Math.max(40, Math.min(100, Math.round(source.opacity))) : 94,
+      order: [...order, ...TOOLBAR_ITEMS.filter((item) => !order.includes(item))],
+      hidden: Array.isArray(source.hidden)
+        ? TOOLBAR_ITEMS.filter((item) => source.hidden.includes(item)) : [],
+    };
+  }
+  async function readCockpit() {
+    return normalizeCockpit(await storage.read(COCKPIT_KEY));
+  }
+  async function writeCockpitPatch(patch) {
+    const current = await readCockpit();
+    const next = normalizeCockpit({ ...current, ...patch });
+    await storage.write({ [COCKPIT_KEY]: next });
+    return next;
+  }
+  let cockpitWrites = Promise.resolve();
+  function saveCockpit(patch) {
+    const operation = cockpitWrites.catch(() => {}).then(async () => {
+      if (B.isExtension()) {
+        const response = await scope.chrome.runtime.sendMessage({ type: "bst:cockpit", patch });
+        if (!response?.ok) throw Error(I.t("设置未能保存，请重试。"));
+        return normalizeCockpit(response.preferences);
+      }
+      return writeCockpitPatch(patch);
+    });
+    cockpitWrites = operation;
+    return operation;
+  }
   const LABELS = Object.freeze({
     favorite: "自选市场",
     subheader: "交易对信息",
@@ -275,6 +324,12 @@
       !plain(data.desktop)
     )
       throw Error(I.t("请选择 Binance Studio 导出的配置文件。"));
+    // Older v2 room exports predate text finishes. Migrate only the missing
+    // field; the structural comparison below still rejects invalid room data.
+    if (plain(data.desktop.rooms))
+      for (const room of Object.values(data.desktop.rooms))
+        if (plain(room?.settings) && !Object.hasOwn(room.settings, "textEffect"))
+          room.settings.textEffect = B.DEFAULTS.textEffect;
     const settings = B.importProfile(
         JSON.stringify({
           format: "binance-studio",
@@ -345,6 +400,12 @@
     return { settings: B.normalize(base), desktop: normalizeDesktop(desktop) };
   }
   const api = {
+    COCKPIT_KEY,
+    TOOLBAR_ITEMS,
+    normalizeCockpit,
+    readCockpit,
+    writeCockpitPatch,
+    saveCockpit,
     prepareMutation,
     KEY,
     LABELS,

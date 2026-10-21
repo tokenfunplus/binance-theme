@@ -14,6 +14,9 @@
   panel.hidden = true;
   panel.innerHTML = `
 <div class="control-card"><div class="card-heading"><h3>让报价动起来</h3><label class="switch"><input id="priceEffectsEnabled" data-setting="priceEffectsEnabled" type="checkbox" aria-label="启用价格动效"><span></span></label></div><p class="card-description">为合约页主价格加上变化反馈，下方涨跌额和百分比使用轻量光效。</p></div>
+<div class="control-card"><div class="card-heading"><h3>文字质感</h3><button class="text-effect-off" data-choice="textEffect" data-value="none" aria-pressed="true">原始文字</button></div><p class="card-description">只装饰主价格与交易对名称，可与数字切换和涨跌光效组合。</p><div class="text-effect-cards" role="group" aria-label="文字特效">${[
+  ["aurora", "极光流彩", "AURORA"], ["chrome", "金属镀铬", "CHROMIA"], ["gold", "金箔流光", "GOLD FOIL"],
+].map(([id, name, tag]) => `<button data-choice="textEffect" data-value="${id}" aria-pressed="false"><span class="text-effect-sample" data-bst-text-effect="${id}">4.913</span><span class="text-effect-sample text-effect-symbol" data-bst-text-effect="${id}">NEARUSDT</span><strong>${name}</strong><small>${tag}</small></button>`).join("")}</div><p class="text-effect-source">灵感来自 <a href="https://text-effects.colorion.co/" target="_blank" rel="noopener noreferrer">Colorion</a> · <span>静态报价也有质感，减少动态效果时保留静态渐变。</span></p></div>
 <div class="control-card"><div class="card-heading"><h3>找到喜欢的节奏</h3><span class="tiny-tag">QUICK MIX</span></div><div class="price-combos">${[
     ["roll", "pulse", "日常耐看", "机械滚轮 + 涨跌脉冲", "↕"],
     ["flip", "neon", "机械驾驶舱", "翻页时钟 + 霓虹余辉", "▤"],
@@ -25,9 +28,9 @@
     )
     .join("")}</div></div>
 <div class="control-card"><div class="card-heading"><h3>数字与光，自由组合</h3><span class="tiny-tag">YOUR MIX</span></div>
-<div class="field"><label for="priceTransition">数字切换方式</label><select id="priceTransition" data-setting="priceTransition"><option value="none">即时切换 · 无位移</option><option value="roll">机械滚轮 · 逐位滚动</option><option value="flip">翻页时钟 · 立体翻转</option><option value="slide">方向滑入 · 轻巧淡入</option><option value="bounce">弹性跳字 · 放大回弹</option></select></div>
+<div class="field"><label for="priceTransition">数字切换方式</label><select id="priceTransition" data-setting="priceTransition"><option value="none">即时切换 · 无位移</option><option value="roll">机械滚轮 · 逐位滚动</option><option value="flip">翻页时钟 · 立体翻转</option><option value="slide">方向滑入 · 轻巧淡入</option><option value="bounce">弹性跳字 · 放大回弹</option><option value="fade">柔和叠化 · 新旧交替</option><option value="push">左右推移 · 定向推进</option><option value="focus">聚焦显影 · 从虚到实</option><option value="wipe">光幕揭示 · 定向擦入</option><option value="orbit">立体转轮 · 侧向旋转</option><option value="shatter">碎片聚合 · 四角归位</option></select></div>
 <div class="field"><label for="priceGlow">变化光效</label><select id="priceGlow" data-setting="priceGlow"><option value="none">关闭光效</option><option value="pulse">涨跌脉冲 · 柔和扩散</option><option value="neon">霓虹余辉 · 短暂发光</option><option value="scan">雷达扫描 · 细光掠过</option><option value="glitch">故障闪切 · 错位色散</option></select></div>
-<div class="field"><label for="priceIntensity">光效与回弹强度</label><select id="priceIntensity" data-setting="priceIntensity"><option value="soft">轻柔 · 日常专注</option><option value="medium">适中 · 清晰反馈</option><option value="strong">鲜明 · 驾驶舱风格</option></select></div>
+<div class="field"><label for="priceIntensity">动效与光效强度</label><select id="priceIntensity" data-setting="priceIntensity"><option value="soft">轻柔 · 日常专注</option><option value="medium">适中 · 清晰反馈</option><option value="strong">鲜明 · 驾驶舱风格</option></select></div>
 <div class="range-field"><div><label for="priceDuration">动效时长</label><output for="priceDuration" id="priceDuration-output">240 ms</output></div><input id="priceDuration" data-setting="priceDuration" data-unit=" ms" type="range" min="120" max="600" step="10"><p class="card-description">越短越利落，越长越舒缓。</p></div>
 <div class="visibility-row"><label for="priceChangedOnly">只动变化的数字<small>保留其他位的阅读位置</small></label><label class="switch"><input id="priceChangedOnly" data-setting="priceChangedOnly" type="checkbox"><span></span></label></div></div>
 <p class="adapter-note"><svg><use href="assets/ui.svg#info"/></svg>尊重系统「减少动态效果」。切换交易对、后台隐藏或关闭扩展时恢复静态显示。此处调整全局默认；已保存的交易对房间保留自己的动效设置。</p>`;
@@ -37,10 +40,13 @@
   specimen.hidden = true;
   specimen.innerHTML = `
 <div class="price-specimen-heading"><span>PRICE MOTION LAB</span><span>模拟报价 · 非实时行情</span></div>
-<div class="price-ticker"><div class="price-symbol"><i>И</i><strong>NEARUSDT</strong><span>永续</span></div><div class="price-quote"><strong data-studio-price>4.913</strong><div><span data-studio-change>0.268</span><span data-studio-change>+5.77%</span></div></div><div class="price-mark"><span>标记价格</span><strong>4.912</strong></div></div>
+<div class="price-ticker"><div class="price-symbol"><i>И</i><strong data-studio-symbol>NEARUSDT</strong><span>永续</span></div><div class="price-quote"><strong data-studio-price>4.913</strong><div><span data-studio-change>0.268</span><span data-studio-change>+5.77%</span></div></div><div class="price-mark"><span>标记价格</span><strong>4.912</strong></div></div>
 <div class="price-specimen-footer"><div><button data-price-step="1">↑ 模拟上涨</button><button data-price-step="-1">↓ 模拟下跌</button></div><label><input id="price-demo-auto" type="checkbox" checked>自动演示</label></div>
 <p id="price-motion-status">变化的数字，跟上你的目光。</p>`;
   document.querySelector(".preview-column").prepend(specimen);
+  const textStyles = document.createElement("style");
+  textStyles.textContent = BinanceStudio.textEffectCSS(".text-effect-sample", { preset: "graphite" });
+  document.head.append(textStyles);
   const effect = new StudioPriceEffects({ id: "bst-price-preview" });
   let settings = BinanceStudio.normalize(),
     active = false,
@@ -62,6 +68,8 @@
   }
   function auto() {
     clearInterval(timer);
+    for (const sample of panel.querySelectorAll(".text-effect-sample"))
+      sample.toggleAttribute("data-bst-text-paused", document.hidden);
     if (
       active &&
       !document.hidden &&

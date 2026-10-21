@@ -38,6 +38,7 @@ test("price preferences validate, export and inherit legacy profile defaults", (
     priceIntensity: "strong",
     priceChangedOnly: false,
     priceEffectsEnabled: false,
+    textEffect: "gold",
   });
   assert.deepEqual(B.importProfile(B.exportProfile(settings)), settings);
   const invalid = B.normalize({
@@ -46,12 +47,14 @@ test("price preferences validate, export and inherit legacy profile defaults", (
     priceDuration: 9999,
     priceIntensity: 3,
     priceChangedOnly: 0,
+    textEffect: "url(evil)",
   });
   assert.equal(invalid.priceTransition, "roll");
   assert.equal(invalid.priceGlow, "pulse");
   assert.equal(invalid.priceDuration, 600);
   assert.equal(invalid.priceIntensity, "soft");
   assert.equal(invalid.priceChangedOnly, true);
+  assert.equal(invalid.textEffect, "none");
   const legacy = B.importProfile(
     JSON.stringify({
       format: "binance-studio",
@@ -61,4 +64,15 @@ test("price preferences validate, export and inherit legacy profile defaults", (
   );
   assert.equal(legacy.priceTransition, "roll");
   assert.equal(legacy.priceEffectsEnabled, true);
+  assert.equal(legacy.textEffect, "none");
+});
+
+test("new transition choices round-trip through profiles without changing timing or the selected text finish", () => {
+  for (const priceTransition of ["fade", "push", "focus", "wipe", "orbit", "shatter"]) {
+    const settings = B.normalize({ priceTransition, priceDuration: 420, priceIntensity: "strong", textEffect: "aurora" });
+    assert.equal(settings.priceTransition, priceTransition);
+    assert.deepEqual(B.importProfile(B.exportProfile(settings)), settings);
+    assert.equal(settings.priceDuration, 420);
+    assert.equal(settings.textEffect, "aurora");
+  }
 });

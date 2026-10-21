@@ -475,6 +475,71 @@ const root = path.resolve(__dirname, "..");
       "standalone preview works without Chrome extension APIs and labels its local-only mode",
     );
 
+    const buttonFixture = await fs.readFile(path.join(__dirname, "fixtures/button-contrast.html"), "utf8");
+    await context.route("**/futures/CONTRASTUSDT", (route) => route.fulfill({ status: 200, contentType: "text/html", body: buttonFixture }));
+    const buttons = await context.newPage();
+    await buttons.goto("https://www.binance.com/en/futures/CONTRASTUSDT");
+    await buttons.waitForSelector("html[data-bst-enabled]");
+    const originalButtonStyles = await buttons.locator("button,button span,[role=button]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("style")));
+    async function buttonColors() {
+      return buttons.locator("[data-contrast-check]").evaluateAll((nodes) => {
+        const rgb = (value) => value.match(/[\d.]+/g).map(Number);
+        return nodes.map((node) => {
+          const style = getComputedStyle(node), foreground = rgb(style.webkitTextFillColor);
+          const background = [0, 0, 0];
+          let remaining = 1;
+          for (let parent = node; parent && remaining > .001; parent = parent.parentElement) {
+            const color = rgb(getComputedStyle(parent).backgroundColor), alpha = color[3] ?? 1;
+            for (let i = 0; i < 3; i++) background[i] += color[i] * alpha * remaining;
+            remaining *= 1 - alpha;
+          }
+          return { id: node.id || node.textContent.trim(), foreground: foreground.slice(0, 3), background };
+        });
+      });
+    }
+    async function assertButtonContrast(label) {
+      for (const { id, foreground, background } of await buttonColors())
+        assert.ok(B.contrastRatio(foreground, background) >= 4.5, `${label}: unreadable ${id}`);
+    }
+    for (const preset of Object.keys(B.PRESETS)) {
+      const settings = { ...B.presetSettings(preset), cockpitEnabled: false, motionEnabled: false };
+      await session.worker.evaluate(({ key, settings }) => chrome.storage.local.set({ [key]: settings }), { key: B.STORAGE_KEY, settings });
+      await buttons.waitForFunction((bg) => getComputedStyle(document.body).getPropertyValue("--color-Bg").trim() === bg, B.PRESETS[preset].bg);
+      await buttons.evaluate(() => new Promise((resolve) => requestAnimationFrame(resolve)));
+      await assertButtonContrast(preset);
+      assert.equal(await buttons.locator("#disabled-control").isDisabled(), true);
+      assert.equal(await buttons.locator("#untouched-amount").inputValue(), "0.125");
+      assert.deepEqual(await buttons.locator("button,button span,[role=button]").evaluateAll((nodes) => nodes.map((node) => node.getAttribute("style"))), originalButtonStyles);
+      if (["graphite", "paper"].includes(preset))
+        await buttons.screenshot({ path: path.join(output, `button-contrast-${preset}.png`), fullPage: true });
+    }
+    await buttons.locator("#hover-control").hover();
+    await buttons.waitForFunction(() => {
+      const style = getComputedStyle(document.getElementById("hover-control"));
+      return style.backgroundColor === "rgb(8, 8, 8)" && style.webkitTextFillColor !== "rgb(0, 0, 0)";
+    });
+    await assertButtonContrast("hover");
+    await buttons.locator("#hover-control").focus();
+    await buttons.mouse.move(2, 2);
+    await buttons.waitForFunction(() => getComputedStyle(document.getElementById("hover-control")).webkitTextFillColor !== "rgb(0, 0, 0)");
+    await assertButtonContrast("focus");
+    await buttons.locator("#untouched-amount").focus();
+    await buttons.waitForFunction(() => document.getElementById("hover-control").dataset.bstButtonInk === "dark");
+    await buttons.evaluate(() => {
+      const button = document.createElement("button");
+      button.id = "dynamic-contrast-control";
+      button.textContent = "新增弹层按钮";
+      button.setAttribute("data-contrast-check", "");
+      document.querySelector(".buttons").append(button);
+    });
+    await buttons.waitForSelector('#dynamic-contrast-control[data-bst-button-ink="dark"]');
+    await assertButtonContrast("dynamic controls");
+    await session.worker.evaluate(({ key, defaults }) => chrome.storage.local.set({ [key]: { ...defaults, enabled: false } }), { key: B.STORAGE_KEY, defaults: B.DEFAULTS });
+    await buttons.waitForFunction(() => !document.documentElement.hasAttribute("data-bst-enabled"));
+    assert.equal(await buttons.locator("[data-bst-button-ink]").count(), 0);
+    assert.equal(await buttons.locator("#untouched-amount").inputValue(), "0.125");
+    passed("all nine palettes retain readable button labels, including nested/translucent/colored fills, hover, focus and dynamic controls; pause restores native styling");
+
     assert.deepEqual(errors, [], "browser runtime errors");
     await fs.writeFile(
       path.join(output, "results.json"),

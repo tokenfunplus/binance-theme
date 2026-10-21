@@ -72,9 +72,13 @@ The console pairs a graphite sidebar with neutral cards and amber accents. The c
 
 ### Trading cockpit
 
+Theme colors cover both generations of Binance color tokens. Button labels with insufficient contrast are adjusted to their rendered solid or translucent background, including nested labels and hover/focus changes, without modifying inline styles, values or disabled state. Pausing the extension removes these corrections. Gradient/image backgrounds keep their original treatment.
+
 Use the floating toolbar on a supported trading page, or open **Trading cockpit → Open cockpit lab** in settings. The standalone preview also offers `/lab.html`. The lab uses simulated prices, depth and trades, and its settings changes are saved.
 
-- **Spatial editor:** drag and resize panel representations on a 12-column grid. Use arrow keys to move, Shift + arrow keys to resize, or enter exact coordinates. Equal-size cards can swap. Applying a layout rearranges the original cards through CSS, reveals the included panels and disables Dock. Cancel or Esc discards the draft.
+- **Floating toolbar:** hold the six-dot handle on the right to move it. Toolbar position, collapsed state and depth-window position are remembered locally across reloads and pair changes. Drop the toolbar within 24 px of any screen edge to snap it there; after the pointer leaves, it hides behind an edge handle. Hover or focus the handle to reveal it. Settings and open menus keep it visible. Double-click the drag handle to restore the toolbar position, or use **Reset window positions** in its gear menu to reset both windows.
+- **Toolbar customization:** the gear opens a live preview for tool visibility/order, icons-only mode, three sizes, background opacity and edge auto-hide. Save commits the changes; Cancel or Esc restores the saved appearance. Settings, collapse and drag controls remain accessible even when all optional tools are hidden. These device-specific preferences are stored separately from rooms and exported profiles.
+- **Spatial editor:** drag and resize panel representations on a 12-column grid. Use arrow keys to move, Shift + arrow keys to resize, or enter exact coordinates. Equal-size cards can swap. Undo/redo retains up to 50 edits per editing session; each completed drag is one step. Use the buttons, Ctrl/⌘ Z, Ctrl/⌘ Shift Z or Ctrl/⌘ Y; text and numeric inputs retain their native undo. Resetting the canvas is also undoable. Applying a layout rearranges the original cards through CSS, reveals the included panels and disables Dock. Cancel or Esc discards the draft.
 - **Edge Dock:** tuck orderbook, trades, or positions panels against the left or right edge. Hover to preview and click to pin. Original DOM nodes and input values are preserved. Standard layouts reclaim space; custom layouts retain their coordinates.
 - **Scenes:** switch between watch, trade and review with optional motion that respects the system reduced-motion preference.
 - **Spotlight:** hold Alt to highlight the panel under the pointer. Releasing Alt, pressing Esc, losing focus or changing pages restores normal brightness. Editing fields do not trigger it; cross-origin iframes handle their own keyboard events.
@@ -86,9 +90,10 @@ Use the floating toolbar on a supported trading page, or open **Trading cockpit 
 
 Open **Price effects** in settings. The default is a mechanical roll with a directional pulse; quick mixes and individual controls are also available.
 
-- Digit transitions: roll, flip, directional slide, bounce, or instant updates.
+- Digit transitions: roll, flip, directional slide, bounce, crossfade, horizontal push, blur-to-focus, directional wipe, 3D side rotation, four-piece assembly, or instant updates. All ten animated transitions work on changed digits and share the duration controls. Focus, 3D rotation and assembly also respond to intensity. New quotes replace in-flight layers immediately; the effects never generate intermediate quote values.
 - Lighting: pulse, neon afterglow, radar scan, glitch, or none.
 - Soft, medium or strong intensity; 120–600 ms duration; changed-digits-only animation and a separate enable switch.
+- Three optional text finishes for the main quote and pair name: **Aurora**, **Chrome** and **Gold foil**, with live sample cards and an **Original text** reset. They also style the cockpit pair label. Reduced motion preserves static gradients; background tabs pause their animation. The original text nodes, font metrics and form fields remain intact. Light themes use darker gradient palettes. The implementations are inspired by Colorion's [Borealis](https://text-effects.colorion.co/effects/aurora-gradient-text-animation/), [Chromia](https://text-effects.colorion.co/effects/chrome-text-effect/) and [Gold-Foil](https://text-effects.colorion.co/effects/gold-text-effect/), with original CSS scoped to the extension's recognized targets and no remote runtime dependencies.
 - Manual up/down steps or automatic playback in a simulated NEARUSDT preview, without a live market connection.
 
 Effects target the recognized futures `.ticker-wrap` main price. Change amounts and percentages receive lighter effects. A temporary display layer preserves the site's text nodes, inline styles and trading inputs. Rapid updates replace the current animation; missing quotes clear the layer. Pair changes reset the baseline. Reduced motion, background visibility and pause restore a static display. Room saves and profile exports include these preferences.
@@ -133,7 +138,7 @@ npm run test:browser
 | `npm run dev` | Local preview on `127.0.0.1:4173`; override with `PORT` |
 | `npm run check` | Check JavaScript syntax, resource references, script order and versions |
 | `npm test` | Unit tests for settings, storage, layouts, rooms, prices and market parsing |
-| `npm run test:browser` | Run all five browser suites with the actual unpacked extension |
+| `npm run test:browser` | Run all six browser suites with the actual unpacked extension |
 | `npm run test:cockpit` | Cockpit, layout, rooms and market lifecycle tests |
 | `npm run test:controls` | Custom dropdowns, color panels, keyboard behavior and popup sizing |
 | `npm run test:i18n` | Bilingual UI, language persistence, cross-page sync and input preservation |

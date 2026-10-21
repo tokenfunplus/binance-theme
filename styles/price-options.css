@@ -185,3 +185,12 @@
     padding-inline: 16px;
   }
 }
+.text-effect-cards { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:9px; margin-top:17px; }
+.text-effect-cards button { min-width:0; padding:20px 7px 14px; border:1px solid #344151; border-radius:11px; background:#121b26; color:#e2e8f0; text-align:center; cursor:pointer; }
+.text-effect-cards button:hover { border-color:#8392a8; }
+.text-effect-cards button[aria-pressed=true] { border-color:#c89529; box-shadow:0 0 0 2px #c895292a; background:#1b2430; }
+.text-effect-sample { display:block; width:max-content; max-width:100%; margin:0 auto; font:650 25px/1.4 "SFMono-Regular",Consolas,monospace; font-variant-numeric:tabular-nums; color:#e2e8f0; }
+.text-effect-symbol { font-size:11px; letter-spacing:.05em; margin:3px auto 17px; }
+.text-effect-cards strong { display:block; font-size:11px; font-weight:500; }.text-effect-cards small { display:block; margin-top:5px; color:#96a3b4; font-size:8px; letter-spacing:.06em; }
+.text-effect-off { padding:6px 9px; font-size:10px; border:1px solid #d8dee7; border-radius:6px; background:#f7f8fa; color:#5e6877; cursor:pointer; }.text-effect-off[aria-pressed=true] { border-color:#c89529; color:#8a641b; background:#fff7e6; }
+.text-effect-source { margin:13px 0 0; color:#7a8494; font-size:10px; line-height:1.8; }.text-effect-source a { color:inherit; text-underline-offset:2px; }

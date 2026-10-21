@@ -38,7 +38,7 @@ npm run build
 npm run test:browser
 ```
 
-Add targeted regression coverage for behavior changes. For UI or lifecycle changes, run the relevant browser suite; all five suites run in CI. Browser tests load an isolated unpacked extension, serve reconstructed Binance fixtures, and use simulated market packets. Their screenshots and results are written to `output/verification/`, which is ignored by Git.
+Add targeted regression coverage for behavior changes. For UI or lifecycle changes, run the relevant browser suite; all six suites run in CI. Browser tests load an isolated unpacked extension, serve reconstructed Binance fixtures, and use simulated market packets. Their screenshots and results are written to `output/verification/`, which is ignored by Git.
 
 In your pull request, explain the problem, the resulting behavior and which checks you ran. Include before/after screenshots for visible UI changes. Report whether a compatibility issue was observed on a live page or only a fixture. When sharing a configuration, remove private room notes first.
 
@@ -93,7 +93,7 @@ npm run build
 npm run test:browser
 ```
 
-行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部五组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
+行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部六组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
 
 Pull Request 请说明问题、最终行为与已执行的验证；界面改动附上前后对比截图。适配问题请区分真实页面观察与测试页面结果。分享配置前请移除私人房间便签。
 

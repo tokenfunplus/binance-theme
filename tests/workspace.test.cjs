@@ -4,6 +4,30 @@ const B = require("../src/core.js"),
   W = require("../src/workspace.js"),
   M = require("../src/market.js");
 
+test("device preferences reject invalid coordinates and CSS values while preserving a recoverable toolbar", () => {
+  const preferences = W.normalizeCockpit({
+    bar: { x: -90, y: 999999, edge: "left;display:none" },
+    depth: { x: Infinity, y: 5 },
+    compact: "true", autoHide: false, iconsOnly: true,
+    opacity: "0;display:none", size: "huge",
+    order: ["room", "room", "unknown", "depth"], hidden: ["room", "unknown", "room"],
+    note: "private text",
+  });
+  assert.deepEqual(preferences.bar, { x: 0, y: 100000, edge: null });
+  assert.equal(preferences.depth, null);
+  assert.equal(preferences.opacity, 94);
+  assert.equal(preferences.size, "normal");
+  assert.equal(preferences.compact, false);
+  assert.equal(preferences.autoHide, false);
+  assert.equal(preferences.iconsOnly, true);
+  assert.deepEqual(preferences.order, ["room", "depth", "scenes", "skin", "layout", "dock"]);
+  assert.deepEqual(preferences.hidden, ["room"]);
+  assert.equal(Object.hasOwn(preferences, "note"), false);
+  assert.equal(W.normalizeCockpit({ opacity: -200 }).opacity, 40);
+  assert.equal(W.normalizeCockpit({ opacity: 1000 }).opacity, 100);
+  assert.deepEqual(W.normalizeCockpit({ hidden: W.TOOLBAR_ITEMS }).hidden, W.TOOLBAR_ITEMS);
+});
+
 test("trade identity separates spot and futures and ignores unrelated or malformed routes", () => {
   assert.equal(
     W.routeContext("https://www.binance.com/zh-CN/futures/BTCUSDT").key,
@@ -97,6 +121,10 @@ test("v2 bundles round-trip rooms and layouts and still accept v1 profiles", () 
     settings,
     desktop: null,
   });
+  const legacy = JSON.parse(W.exportBundle(settings, desktop));
+  delete legacy.settings.textEffect;
+  for (const room of Object.values(legacy.desktop.rooms)) delete room.settings.textEffect;
+  assert.deepEqual(W.importBundle(JSON.stringify(legacy)), { settings, desktop });
   const bad = JSON.parse(W.exportBundle(settings, desktop));
   bad.desktop.layout[0].x = -1;
   assert.throws(() => W.importBundle(JSON.stringify(bad)));

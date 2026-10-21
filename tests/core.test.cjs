@@ -4,6 +4,19 @@ const fs = require("node:fs");
 const path = require("node:path");
 const B = require("../src/core.js");
 
+test("button contrast preserves readable labels and picks readable ink for light and dark fills", () => {
+  assert.equal(B.contrastRatio([0, 0, 0], [255, 255, 255]), 21);
+  assert.equal(B.contrastRatio([50, 50, 50], [50, 50, 50]), 1);
+  assert.equal(B.readableButtonInk([255, 255, 255], [232, 232, 232]), "dark");
+  assert.equal(B.readableButtonInk([10, 10, 10], [20, 20, 20]), "light");
+  assert.equal(B.readableButtonInk([0, 0, 0], [255, 255, 255]), null);
+  for (let channel = 0; channel <= 255; channel++) {
+    const background = [channel, channel, channel];
+    const ink = B.readableButtonInk(background, background);
+    assert.ok(B.contrastRatio(ink === "dark" ? [0, 0, 0] : [255, 255, 255], background) >= 4.5);
+  }
+});
+
 test("untrusted settings are normalized without allowing CSS injection or type coercion", () => {
   const s = B.normalize({
     enabled: "false",

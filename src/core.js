@@ -162,6 +162,7 @@
     priceDuration: 240,
     priceIntensity: "soft",
     priceChangedOnly: true,
+    textEffect: "none",
   });
   const ENUMS = {
     language: ["auto", "en", "zh-CN"],
@@ -172,9 +173,10 @@
     layout: ["native", "mirror", "focus", "custom"],
     dockEdge: ["left", "right"],
     skin: ["classic", "obsidian", "radar", "arctic", "mecha"],
-    priceTransition: ["none", "roll", "flip", "slide", "bounce"],
+    priceTransition: ["none", "roll", "flip", "slide", "bounce", "fade", "push", "focus", "wipe", "orbit", "shatter"],
     priceGlow: ["none", "pulse", "neon", "scan", "glitch"],
     priceIntensity: ["soft", "medium", "strong"],
+    textEffect: ["none", "aurora", "chrome", "gold"],
   };
   const RANGES = {
     fontSize: [12, 18],
@@ -273,6 +275,46 @@
     return { ...PRESETS[s.preset], accent: s.accent, buy: s.buy, sell: s.sell };
   }
 
+  function contrastRatio(a, b) {
+    const luminance = (rgb) => rgb.map((value) => {
+      const channel = value / 255;
+      return channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+    const first = luminance(a), second = luminance(b);
+    return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+  }
+  function readableButtonInk(foreground, background) {
+    if (contrastRatio(foreground, background) >= 4.5) return null;
+    return contrastRatio([0, 0, 0], background) >= contrastRatio([255, 255, 255], background) ? "dark" : "light";
+  }
+
+  // Original, scoped implementations inspired by Colorion's Borealis,
+  // Chromia and Gold-Foil examples: https://text-effects.colorion.co/
+  function textEffectCSS(selector, input) {
+    const p = palette(input);
+    const rgb = p.bg.slice(1).match(/../g).map((value) => parseInt(value, 16));
+    const light = rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722 > 160;
+    const active = `${selector}:is([data-bst-text-effect="aurora"],[data-bst-text-effect="chrome"],[data-bst-text-effect="gold"])`;
+    const aurora = light ? ["#0e7490", "#6d28d9", "#a21caf"] : ["#67e8f9", "#c4b5fd", "#f0abfc"];
+    const silver = light ? ["#334155", "#64748b", "#0f172a"] : ["#a7b7c8", "#f8fbff", "#8396ad"];
+    const gold = light ? ["#704300", "#b47404", "#8c5100"] : ["#dba342", "#fff0b2", "#f7ce74"];
+    return `
+@supports ((background-clip:text) or (-webkit-background-clip:text)) {
+  ${active}{-webkit-background-clip:text!important;background-clip:text!important;-webkit-text-fill-color:transparent!important}
+  ${selector}[data-bst-text-effect="aurora"]{background-image:linear-gradient(105deg,${aurora[0]},${aurora[1]},${aurora[2]},${aurora[0]})!important;background-size:300% 100%!important;animation:bst-text-aurora 9s linear infinite}
+  ${selector}[data-bst-text-effect="chrome"]{background-image:linear-gradient(110deg,transparent 36%,${silver[1]} 48%,transparent 60%),linear-gradient(170deg,${silver[0]} 12%,${silver[1]} 30%,${silver[2]} 48%,${silver[0]} 55%,${silver[1]} 82%)!important;background-size:240% 100%,100% 100%!important;animation:bst-text-metal 6s ease-in-out infinite}
+  ${selector}[data-bst-text-effect="gold"]{background-image:linear-gradient(110deg,${gold[0]},${gold[2]} 26%,${gold[1]} 40%,${gold[0]} 54%,${gold[2]} 76%,${gold[0]})!important;background-size:230% 100%!important;animation:bst-text-gold 7s ease-in-out infinite}
+}
+@keyframes bst-text-aurora{from{background-position:0% 50%}to{background-position:150% 50%}}
+@keyframes bst-text-metal{0%,15%{background-position:150% 0,0 0}70%,100%{background-position:-150% 0,0 0}}
+@keyframes bst-text-gold{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+${active}[data-bst-text-paused]{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){${active}{animation:none!important}}
+@media(forced-colors:active){${active}{background-image:none!important;color:CanvasText!important;-webkit-text-fill-color:CanvasText!important;animation:none!important}}
+${active}[data-bst-price-muted]{background-image:none!important;-webkit-text-fill-color:transparent!important}
+`;
+  }
+
   function skinSettings(id, current = DEFAULTS) {
     const skins = {
       classic: "graphite",
@@ -335,6 +377,12 @@
       DisabledText: p.muted,
       DisableText: p.muted,
       Placeholder: p.muted,
+      DisableBtn: p.raised,
+      LiteBg1: p.surface,
+      LiteBg2: p.surface,
+      TextOnWhite: "#000000",
+      TextOnBlack: "#ffffff",
+      RedGreenBgText: "#ffffff",
       PrimaryYellow: p.accent,
       BtnBg: p.accent,
       TextLink: p.accent,
@@ -351,7 +399,28 @@
       DepthSellBg: `${p.sell}20`,
       SuccessBg: `${p.buy}18`,
       ErrorBg: `${p.sell}18`,
+      bg: p.bg,
+      bg1: p.bg,
+      bg2: p.surface,
+      bg3: p.raised,
+      bg4: p.line,
+      bg6: p.surface,
+      bg7: p.surface,
+      textPrimary: p.text,
+      textSecondary: p.muted,
+      textThird: p.muted,
+      textDisabled: p.muted,
+      textWhite: "#ffffff",
+      textBlack: "#000000",
+      textGray: p.text,
+      textBrand: p.accent,
+      primary: p.accent,
+      primaryHover: p.accent,
+      selectedBg: p.raised,
     };
+    // Both generations of Binance tokens can coexist on the same page.
+    for (const [key, value] of Object.entries(vars))
+      if (/^[A-Z]/.test(key)) vars[key[0].toLowerCase() + key.slice(1)] ??= value;
     const declarations = Object.entries(vars)
       .map(([key, value]) => `--color-${key}:${value} !important;`)
       .join("");
@@ -365,6 +434,9 @@
     return `
 html[data-bst-enabled], html[data-bst-enabled] :is(body, .theme-root, .bn-theme, [data-theme]) { ${declarations} }
 html[data-bst-enabled] body { background-color:${p.bg} !important; color:${p.text} !important; font-family:${FONTS[s.font]} !important; font-size:${s.fontSize}px !important; }
+html[data-bst-enabled] { color-scheme:${contrastRatio([0, 0, 0], p.bg.slice(1).match(/../g).map((value) => parseInt(value, 16))) > 4.5 ? "light" : "dark"} !important; }
+html[data-bst-enabled] [data-bst-button-ink="dark"] { color:#000 !important; -webkit-text-fill-color:#000 !important; }
+html[data-bst-enabled] [data-bst-button-ink="light"] { color:#fff !important; -webkit-text-fill-color:#fff !important; }
 html[data-bst-enabled] :is(input, button, select, textarea) { font-family:${FONTS[s.font]} !important; }
 html[data-bst-enabled] :is(.bn-web-table, .bn-web-table table, [data-bst-panel="orderbook"], [data-bst-panel="trades"], [data-bst-panel="markets"]) { font-family:${FONTS[s.font]} !important; font-size:${s.fontSize}px !important; }
 html[data-bst-enabled] :is(.bn-web-table th, .bn-web-table td) { padding-block:${spacing}px !important; }
@@ -581,6 +653,9 @@ ${root} > [data-bst-area] > .react-resizable-handle { display:none !important; }
     normalize,
     presetSettings,
     palette,
+    contrastRatio,
+    readableButtonInk,
+    textEffectCSS,
     skinSettings,
     dockedAreas,
     themeCSS,
