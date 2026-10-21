@@ -71,8 +71,54 @@ const W = require("../src/workspace.js");
     assert.ok(symbolBounds.y + symbolBounds.height < priceBounds.y && priceBounds.y + priceBounds.height < markBounds.y, "symbol, main price and reference prices form distinct rows");
     assert.equal(await site.locator("#bst-quote-exit").isVisible(), true);
     assert.equal(await site.evaluate(() => document.querySelector(".ticker-wrap") === window.originalTicker), true);
-    await site.evaluate(() => { document.getElementById("ticker-price").firstChild.textContent = "5.188"; });
-    await site.locator("#bst-price-effects .stage").first().waitFor();
+    // Effects intentionally skip background tabs. Observe the short-lived layer
+    // before changing the quote, rather than polling after it may have finished.
+    await site.bringToFront();
+    await site.waitForFunction(() => !document.hidden);
+    const animation = await site.evaluate(async () => {
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      return new Promise((resolve, reject) => {
+        let shadowObserver, observedShadow;
+        const observer = new MutationObserver(inspect);
+        const timeout = setTimeout(() => {
+          cleanup();
+          reject(new Error(`Quote animation did not render; document.hidden=${document.hidden}`));
+        }, 3000);
+        function cleanup() {
+          clearTimeout(timeout);
+          observer.disconnect();
+          shadowObserver?.disconnect();
+        }
+        function inspect() {
+          const host = document.getElementById("bst-price-effects"), shadow = host?.shadowRoot;
+          if (shadow && shadow !== observedShadow) {
+            shadowObserver?.disconnect();
+            observedShadow = shadow;
+            shadowObserver = new MutationObserver(inspect);
+            shadowObserver.observe(shadow, { childList: true, subtree: true });
+          }
+          const stage = shadow?.querySelector('.stage[data-transition="roll"]');
+          if (!stage) return;
+          const bounds = stage.getBoundingClientRect();
+          const result = {
+            hostDisplay: getComputedStyle(host).display,
+            visible: getComputedStyle(stage).visibility === "visible" && bounds.width > 0 && bounds.height > 0,
+            direction: stage.dataset.direction,
+            price: [...stage.querySelectorAll(".glyph")].map((glyph) => glyph.lastElementChild.textContent).join(""),
+          };
+          cleanup();
+          resolve(result);
+        }
+        observer.observe(document.body, { childList: true, subtree: true });
+        inspect();
+        document.getElementById("ticker-price").firstChild.textContent = "5.188";
+      });
+    });
+    assert.notEqual(animation.hostDisplay, "none", "the quote-only view keeps its animation layer visible");
+    assert.equal(animation.visible, true);
+    assert.equal(animation.direction, "up");
+    assert.equal(animation.price, "5.188");
+    console.log("PASS foreground quote updates render visible animation layers without timing-dependent polling");
     await site.waitForFunction(() => document.getElementById("ticker-price").textContent === "5.188");
     await site.screenshot({ path: path.join(output, "quote-only.png"), animations: "disabled" });
     for (const viewport of [{ width: 1800, height: 1000 }, { width: 1280, height: 480 }]) {
