@@ -10,6 +10,7 @@ The extension has no third-party runtime dependencies. The extension interface a
 - **Arrange your workspace:** a 12-column editor with up to 50 undo/redo steps, edge Dock and saved rooms for each pair.
 - **Give quotes a distinct look:** ten digit animations, four lighting effects and three text finishes for the main price and pair name.
 - **Keep controls readable:** nine palettes with automatic text contrast correction for supported buttons.
+- **Focus on the quote:** a large full-screen price, separate change and reference prices, and a visible exit button.
 
 ## Preview
 
@@ -23,9 +24,17 @@ Adjust themes, colors, typography, and layout with a live preview. All market da
 
 ### Toolbar popup
 
-Switch themes, toggle focus mode, or open the full settings console from the browser toolbar.
+Switch themes, toggle focus or quote-only mode, or open the full settings console from the browser toolbar.
 
-<img src="docs/screenshots/en/chrome-popup.png" alt="Toolbar popup with nine themes, focus mode, enable switch and settings shortcut" width="350">
+<img src="docs/screenshots/en/chrome-popup.png" alt="Toolbar popup with nine themes, focus and quote-only switches, enable switch and settings shortcut" width="350">
+
+### Quote only
+
+Click **Quote only** beside **Watch / Trade / Review** in the floating toolbar. The main price fills the center, with the pair above, change below, and mark / index prices in two columns. Theme colors and price effects still apply; the view adapts to desktop, narrow and short windows.
+
+Click **Exit quote only** at the top right or press **Esc** to return to the trading layout. The screenshot uses fixed sample prices and has no account connection.
+
+![Full-screen simulated NEARUSDT quote with a large main price, change, mark and index prices, and a visible Exit quote only button](docs/screenshots/en/quote-only.png)
 
 <details>
 <summary>Price animations and three text finishes</summary>
@@ -111,6 +120,8 @@ The console pairs a graphite sidebar with neutral cards and amber accents. The c
 - Automatic space recovery when supported futures panels are hidden; a layout reset that preserves appearance settings.
 - A clearly labeled simulated trading preview with a native-style comparison.
 
+**Quote only** is available from the floating toolbar, the popup switch, or **Layout & focus**. It hides navigation, trading panels and the cockpit while native prices keep updating. Exit with the top-right button, **Esc**, or the popup switch. The selected mode persists across reloads and takes priority over pair rooms; saved rooms and order inputs remain intact. Pages without a recognized quote bar keep their normal layout.
+
 ### Trading cockpit
 
 Theme colors cover both generations of Binance color tokens. Button labels with insufficient contrast are adjusted to their rendered solid or translucent background, including nested labels and hover/focus changes, without modifying inline styles, values or disabled state. Pausing the extension removes these corrections. Gradient/image backgrounds keep their original treatment.
@@ -179,14 +190,17 @@ npm run test:browser
 | `npm run dev` | Local preview on `127.0.0.1:4173`; override with `PORT` |
 | `npm run check` | Check JavaScript syntax, resource references, script order and versions |
 | `npm test` | Unit tests for settings, storage, layouts, rooms, prices and market parsing |
-| `npm run test:browser` | Run all six browser suites with the actual unpacked extension |
+| `npm run test:browser` | Run all seven browser suites with the actual unpacked extension |
 | `npm run test:cockpit` | Cockpit, layout, rooms and market lifecycle tests |
 | `npm run test:controls` | Custom dropdowns, color panels, keyboard behavior and popup sizing |
 | `npm run test:i18n` | Bilingual UI, language persistence, cross-page sync and input preservation |
 | `npm run test:prices` | Price effects and responsive preview tests |
+| `npm run test:ticker` | Quote-only layout, exit button / Esc, themes, viewports, live updates and restoration |
 | `npm run build` | Create a clean unpacked extension and versioned ZIP in `dist/` |
-| `npm run screenshots` | Refresh all 22 README screenshots in isolated English and Chinese extension profiles |
-| `npm run screenshots:en` / `npm run screenshots:zh` | Refresh the 11 screenshots for one language |
+| `npm run screenshots` | Refresh all 24 README screenshots in isolated English and Chinese extension profiles |
+| `npm run screenshots:en` / `npm run screenshots:zh` | Refresh the 12 screenshots for one language |
+
+To refresh only the quote-only view, toolbar popup and cockpit screenshots in both languages, run `node scripts/screenshots.cjs --lang=all --only=quote`.
 
 The installed extension uses `chrome.storage.local`. The standalone preview uses `localStorage` and has separate settings; use export/import to move them. Multiple pages observe storage changes, and failed writes are reported in the UI.
 

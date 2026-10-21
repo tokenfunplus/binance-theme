@@ -118,6 +118,16 @@
   color: #a1ab90;
   margin-top: 5px;
 }
+.popup-modes {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 15px;
+  border-block: 1px solid var(--line);
+}
+.popup-modes .popup-focus { position: relative; display: block; margin: 0; padding: 12px 0; border: 0; }
+.popup-modes .popup-focus strong { display: block; padding-right: 36px; line-height: 18px; }
+.popup-modes .popup-focus > .switch { position: absolute; top: 12px; right: 0; }
 .popup-site-status {
   display: flex;
   gap: 7px;

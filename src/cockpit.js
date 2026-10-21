@@ -33,11 +33,12 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
 @media(max-width:600px){.editor-toolbar{flex-wrap:wrap}.editor-history{margin-left:auto}.bar[data-size=large]{gap:4px}.bar[data-size=large] .scenes button,.bar[data-size=large]>button:not(.bar-drag-handle){padding:7px}}
 `;
   class Cockpit {
-    constructor({ commit, saveLayout, saveRoom, deleteRoom }) {
+    constructor({ commit, saveLayout, saveRoom, deleteRoom, toggleQuote }) {
       this.commit = commit;
       this.saveLayout = saveLayout;
       this.saveRoom = saveRoom;
       this.deleteRoom = deleteRoom;
+      this.toggleQuote = toggleQuote;
       this.host = document.createElement("div");
       this.host.id = "bst-cockpit";
       this.shadow = this.host.attachShadow({ mode: "open" });
@@ -45,7 +46,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
       sheet.replaceSync(CSS);
       this.shadow.adoptedStyleSheets = [sheet];
       this.shadow.innerHTML = `
-<div class="bar" aria-label="Binance Studio 驾驶舱"><span class="mark">✳</span><span class="symbol"><b id="symbol-label"></b><small id="room-label">GLOBAL SPACE</small></span><div class="scenes" role="group" aria-label="工作区场景"><button data-scene="watch">◉ 观察</button><button data-scene="trade">⌘ 执行</button><button data-scene="review">▤ 复盘</button></div><select id="skin-select" aria-label="驾驶舱皮肤"><option value="classic">经典</option><option value="obsidian">Obsidian</option><option value="radar">Radar</option><option value="arctic">Arctic</option><option value="mecha">Mecha</option></select><button id="editor-open">▦ 空间</button><button id="dock-toggle" aria-pressed="false">◧ Dock</button><button id="depth-toggle" aria-pressed="false">⌁ 深度</button><button id="room-open">◇ 房间</button><button class="toolbar-customize" id="toolbar-customize" type="button" aria-label="自定义工具栏" title="自定义工具栏">⚙</button><button class="expand" id="compact-toggle" aria-label="收起驾驶舱">⌃</button><button class="bar-drag-handle" type="button" aria-label="拖动驾驶舱，方向键移动" title="按住拖动驾驶舱"><svg viewBox="0 0 12 20" width="12" height="20" aria-hidden="true" fill="currentColor"><circle cx="3" cy="4" r="1.3"/><circle cx="9" cy="4" r="1.3"/><circle cx="3" cy="10" r="1.3"/><circle cx="9" cy="10" r="1.3"/><circle cx="3" cy="16" r="1.3"/><circle cx="9" cy="16" r="1.3"/></svg></button></div>
+<div class="bar" aria-label="Binance Studio 驾驶舱"><span class="mark">✳</span><span class="symbol"><b id="symbol-label"></b><small id="room-label">GLOBAL SPACE</small></span><div class="scenes" role="group" aria-label="工作区场景"><button data-scene="watch">◉ 观察</button><button data-scene="trade">⌘ 执行</button><button data-scene="review">▤ 复盘</button><button data-scene="ticker">◌ 仅报价</button></div><select id="skin-select" aria-label="驾驶舱皮肤"><option value="classic">经典</option><option value="obsidian">Obsidian</option><option value="radar">Radar</option><option value="arctic">Arctic</option><option value="mecha">Mecha</option></select><button id="editor-open">▦ 空间</button><button id="dock-toggle" aria-pressed="false">◧ Dock</button><button id="depth-toggle" aria-pressed="false">⌁ 深度</button><button id="room-open">◇ 房间</button><button class="toolbar-customize" id="toolbar-customize" type="button" aria-label="自定义工具栏" title="自定义工具栏">⚙</button><button class="expand" id="compact-toggle" aria-label="收起驾驶舱">⌃</button><button class="bar-drag-handle" type="button" aria-label="拖动驾驶舱，方向键移动" title="按住拖动驾驶舱"><svg viewBox="0 0 12 20" width="12" height="20" aria-hidden="true" fill="currentColor"><circle cx="3" cy="4" r="1.3"/><circle cx="9" cy="4" r="1.3"/><circle cx="3" cy="10" r="1.3"/><circle cx="9" cy="10" r="1.3"/><circle cx="3" cy="16" r="1.3"/><circle cx="9" cy="16" r="1.3"/></svg></button></div>
 <button class="bar-peek" aria-label="展开驾驶舱" title="展开驾驶舱" hidden>⠿</button>
 <div class="rail" aria-label="边缘面板" hidden></div><div class="peek-controls" hidden><span id="peek-title"></span><div><button id="peek-return">放回布局</button><button id="peek-close" aria-label="收起边缘面板">×</button></div></div>
 <div class="depth-window" hidden><div class="depth-head"><strong>DEPTH TERRAIN <span id="depth-symbol"></span></strong><button id="depth-close" aria-label="关闭动态盘口">×</button></div><p class="depth-status" role="status"></p><canvas class="depth-canvas" aria-label="买卖累计深度山脉"></canvas><div class="depth-legend"><span>◂ BUY DEPTH</span><span>AGGREGATE TRADE TAPE ▸</span></div><canvas class="tape-canvas" aria-label="最近成交气泡带"></canvas><p class="depth-metrics"></p></div>
@@ -61,7 +62,7 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         icon.setAttribute("aria-hidden", "true");
         label.className = "tool-label";
         label.textContent = text.slice(split + 1);
-        button.setAttribute("title", text);
+        button.setAttribute("title", button.dataset.scene === "ticker" ? "仅报价，按 Esc 返回" : text);
         button.setAttribute("aria-label", text);
         button.replaceChildren(icon, document.createTextNode(" "), label);
       }
@@ -105,7 +106,9 @@ dialog{pointer-events:auto;color:var(--ink);background:#131d23;border:1px solid 
         .querySelectorAll("[data-scene]")
         .forEach((button) =>
           button.addEventListener("click", () =>
-            this.action(this.commit(W.SCENES[button.dataset.scene].patch)),
+            this.action(button.dataset.scene === "ticker"
+              ? this.toggleQuote()
+              : this.commit(W.SCENES[button.dataset.scene].patch)),
           ),
         );
       this.$("#skin-select").addEventListener("change", (event) =>

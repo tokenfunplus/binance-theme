@@ -170,7 +170,7 @@
     font: ["system", "mono"],
     density: ["compact", "comfortable", "relaxed"],
     width: ["full", "1440", "1680", "1920"],
-    layout: ["native", "mirror", "focus", "custom"],
+    layout: ["native", "mirror", "focus", "ticker", "custom"],
     dockEdge: ["left", "right"],
     skin: ["classic", "obsidian", "radar", "arctic", "mecha"],
     priceTransition: ["none", "roll", "flip", "slide", "bounce", "fade", "push", "focus", "wipe", "orbit", "shatter"],
@@ -334,7 +334,7 @@ ${active}[data-bst-price-muted]{background-image:none!important;-webkit-text-fil
 
   function dockedAreas(input) {
     const s = normalize(input);
-    return s.dockEnabled
+    return s.dockEnabled && s.layout !== "ticker"
       ? [
           s.dockOrderbook && "orderbook",
           s.dockTrades && "trades",
@@ -479,6 +479,7 @@ ${hidden.map((name) => `html[data-bst-enabled] [data-bst-panel="${name}"] { disp
     const s = normalize(input);
     if (
       !s.enabled ||
+      s.layout === "ticker" ||
       !managedLayout(s) ||
       !Array.isArray(areas) ||
       areas.length !== new Set(areas).size ||

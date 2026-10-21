@@ -4,6 +4,8 @@ const path = require("node:path");
 const { launchExtension, chooseOption } = require("../tests/helpers/extension.cjs");
 const B = require("../src/core.js");
 const W = require("../src/workspace.js");
+const quoteScreenshotsOnly = process.argv.includes("--only=quote");
+const quoteScreenshots = new Set(["chrome-popup.png", "cockpit-lab.png", "quote-only.png"]);
 
 async function verifyLanguage(page, language) {
   assert.equal(await page.getAttribute("html", "lang"), language);
@@ -42,11 +44,14 @@ async function captureLanguage(language) {
     locale: language === "en" ? "en-US" : "zh-CN",
     onPageError: (error) => errors.push(error.message),
   });
+  let captured = 0;
   const capture = async (page, filename, element) => {
+    if (quoteScreenshotsOnly && !quoteScreenshots.has(filename)) return;
     await verifyLanguage(page, language);
     const settings = { path: path.join(output, filename), animations: "disabled" };
     if (element) await element.screenshot(settings);
     else await page.screenshot({ ...settings, fullPage: true });
+    captured++;
     console.log(`Captured ${language} ${filename}`);
   };
   try {
@@ -147,8 +152,26 @@ async function captureLanguage(language) {
       await lab.waitForFunction((skin) => document.documentElement.getAttribute("data-bst-skin") === skin, skin);
       await capture(lab, `skin-${skin}.png`);
     }
+    // Fixed fixture quotes keep README captures separate from live accounts.
+    const quoteFixture = (await fs.readFile(path.join(__dirname, "../tests/fixtures/futures-grid.html"), "utf8"))
+      .replace("<html>", `<html lang="${language}">`)
+      .replace("<strong>NEARUSDT 永续</strong>", `<strong>NEARUSDT <small>${language === "en" ? "Perpetual" : "永续"}</small></strong>`)
+      .replace('<div>标记价格 <span id="ticker-mark">4.912</span></div>',
+        `<div>${language === "en" ? "Mark price" : "标记价格"}<span id="ticker-mark">4.912</span></div><div>${language === "en" ? "Index price" : "指数价格"}<span>4.914</span></div>`);
+    await context.route("https://www.binance.com/**", (route) => route.fulfill({ status: 200, contentType: "text/html", body: quoteFixture }));
+    await worker.evaluate(({ key, desktopKey, settings }) => chrome.storage.local.set({
+      [key]: settings, [desktopKey]: { layout: [], rooms: {} },
+    }), { key: B.STORAGE_KEY, desktopKey: W.KEY, settings: { ...B.DEFAULTS, language, layout: "ticker" } });
+    const quote = await context.newPage();
+    await quote.setViewportSize({ width: 1440, height: 900 });
+    await quote.goto(`https://www.binance.com/${language}/futures/NEARUSDT`);
+    await quote.locator('[data-bst-quote-layout="stack"]').waitFor();
+    await quote.locator("#bst-quote-exit").waitFor();
+    await capture(quote, "quote-only.png");
+    await quote.locator("#bst-quote-exit").click();
+    await quote.locator("#futures-amount").waitFor();
     assert.deepEqual(errors, [], "browser runtime errors");
-    console.log(`11 ${language} README screenshots saved to ${output}`);
+    console.log(`${captured} ${language} README screenshots saved to ${output}`);
   } finally {
     await session.close();
   }

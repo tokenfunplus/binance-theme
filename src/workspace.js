@@ -103,6 +103,10 @@
         positionsHeight: 600,
       },
     },
+    ticker: {
+      name: "仅报价",
+      patch: { layout: "ticker" },
+    },
   });
   const plain = (value) =>
     value && typeof value === "object" && !Array.isArray(value);
@@ -262,6 +266,9 @@
             ...room.settings,
             enabled: base.enabled,
             language: base.language,
+            // Quote-only is a page-wide mode controlled outside the room.
+            layout: base.layout === "ticker" || room.settings.layout === "ticker"
+              ? base.layout : room.settings.layout,
             cockpitEnabled: base.cockpitEnabled,
             roomsEnabled: base.roomsEnabled,
           }
@@ -361,7 +368,10 @@
       ? { key }
       : null;
     const effective = resolve(base, desktop, route);
-    if (op === "patch" || op === "layout") {
+    if (op === "ticker") {
+      // The toolbar controls this global mode even inside a saved pair room.
+      base = B.normalize({ ...base, layout: payload.layout });
+    } else if (op === "patch" || op === "layout") {
       const patch =
         op === "layout"
           ? {

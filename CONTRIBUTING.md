@@ -38,11 +38,11 @@ npm run build
 npm run test:browser
 ```
 
-Add targeted regression coverage for behavior changes. For UI or lifecycle changes, run the relevant browser suite; all six suites run in CI. Browser tests load an isolated unpacked extension, serve reconstructed Binance fixtures, and use simulated market packets. Their screenshots and results are written to `output/verification/`, which is ignored by Git.
+Add targeted regression coverage for behavior changes. For UI or lifecycle changes, run the relevant browser suite; all seven suites run in CI. Browser tests load an isolated unpacked extension, serve reconstructed Binance fixtures, and use simulated market packets. Their screenshots and results are written to `output/verification/`, which is ignored by Git.
 
 In your pull request, explain the problem, the resulting behavior and which checks you ran. Include before/after screenshots for visible UI changes. Report whether a compatibility issue was observed on a live page or only a fixture. When sharing a configuration, remove private room notes first.
 
-After installing Playwright Chromium, run `npm run screenshots` to refresh all 22 README images in isolated extension profiles. Use `npm run screenshots:en` or `npm run screenshots:zh` to refresh one language's 11 images. English images live in `docs/screenshots/en/`; Mandarin images live in `docs/screenshots/`. The command checks the selected language and untranslated English UI text, including the cockpit's Shadow DOM. Capture simulation pages and sample notes only.
+After installing Playwright Chromium, run `npm run screenshots` to refresh all 24 README images in isolated extension profiles. Use `npm run screenshots:en` or `npm run screenshots:zh` to refresh one language's 12 images. English images live in `docs/screenshots/en/`; Mandarin images live in `docs/screenshots/`. The command checks the selected language and untranslated English UI text, including the cockpit's Shadow DOM. Capture simulation pages and sample notes only.
 
 ### Report a bug
 
@@ -93,11 +93,11 @@ npm run build
 npm run test:browser
 ```
 
-行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部六组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
+行为变化应补充有针对性的回归覆盖。界面和生命周期改动应运行对应浏览器测试；CI 会执行全部七组。浏览器测试使用独立扩展环境、重建币安页面和模拟行情数据。截图与结果保存在 Git 忽略的 `output/verification/` 中。
 
 Pull Request 请说明问题、最终行为与已执行的验证；界面改动附上前后对比截图。适配问题请区分真实页面观察与测试页面结果。分享配置前请移除私人房间便签。
 
-安装 Playwright Chromium 后运行 `npm run screenshots`，可在独立扩展环境中更新全部 22 张 README 截图。`npm run screenshots:en` 或 `npm run screenshots:zh` 可单独更新对应语言的 11 张截图；英文位于 `docs/screenshots/en/`，中文位于 `docs/screenshots/`。脚本检查所选语言，并检查英文页面及驾驶舱 Shadow DOM 是否残留未翻译文字。只截取模拟页面及示例便签。
+安装 Playwright Chromium 后运行 `npm run screenshots`，可在独立扩展环境中更新全部 24 张 README 截图。`npm run screenshots:en` 或 `npm run screenshots:zh` 可单独更新对应语言的 12 张截图；英文位于 `docs/screenshots/en/`，中文位于 `docs/screenshots/`。脚本检查所选语言，并检查英文页面及驾驶舱 Shadow DOM 是否残留未翻译文字。只截取模拟页面及示例便签。
 
 ### 报告问题
 

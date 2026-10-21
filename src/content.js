@@ -11,7 +11,9 @@
     queued = false,
     cockpit = null,
     priceEffects = null,
-    signature = "";
+    quoteExit = null,
+    signature = "",
+    quoteReturnLayout = "native";
   let panels = {},
     layoutRoot = null,
     gridAreas = [],
@@ -101,6 +103,11 @@
         "data-bst-area",
         "data-bst-grid",
         "data-bst-docked",
+        "data-bst-quote",
+        "data-bst-quote-path",
+        "data-bst-quote-layout",
+        "data-bst-quote-flow",
+        "data-bst-quote-part",
       ])
         element.removeAttribute(name);
     marked.clear();
@@ -203,6 +210,117 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
 @media(prefers-reduced-motion:reduce) { ${root} [data-bst-area] { scroll-behavior:auto !important; } }
 `;
   }
+  function isolateQuote() {
+    const quote = settings.layout === "ticker" && route
+      ? document.querySelector(".ticker-wrap, .symbol-content") : null;
+    document.documentElement.toggleAttribute("data-bst-quote-only", Boolean(quote));
+    if (!quote) return false;
+    quote.setAttribute("data-bst-quote", "");
+    marked.add(quote);
+    const price = quote.querySelector("[data-studio-price], .draggableHandle > .text-6"),
+      symbol = quote.querySelector("[data-studio-symbol], .symbol-name, h1, :scope > strong");
+    if (price && symbol && !symbol.contains(price)) {
+      const part = (node, name) => {
+        if (!node || node === quote) return;
+        node.setAttribute("data-bst-quote-part", name);
+        marked.add(node);
+        for (let wrapper = node.parentElement; wrapper && wrapper !== quote; wrapper = wrapper.parentElement) {
+          wrapper.setAttribute("data-bst-quote-flow", "");
+          marked.add(wrapper);
+        }
+      };
+      let symbolGroup = symbol;
+      while (symbolGroup.parentElement !== quote && !symbolGroup.parentElement.contains(price))
+        symbolGroup = symbolGroup.parentElement;
+      const change = price.nextElementSibling,
+        marketList = quote.querySelector(".default-market-list-container"),
+        references = marketList ? [...marketList.children].slice(0, 2)
+          : [...quote.children].filter((node) => !node.contains(symbol) && !node.contains(price) && node !== change).slice(0, 2);
+      quote.setAttribute("data-bst-quote-layout", "stack");
+      part(symbolGroup, "symbol");
+      part(price, "value");
+      part(change, "change");
+      references.forEach((node, index) => part(node, index ? "index" : "mark"));
+    }
+    for (let parent = quote.parentElement; parent && parent !== document.documentElement; parent = parent.parentElement) {
+      parent.setAttribute("data-bst-quote-path", "");
+      marked.add(parent);
+    }
+    return true;
+  }
+  function quoteCSS() {
+    const root = "html[data-bst-enabled][data-bst-quote-only]",
+      stack = `${root} [data-bst-quote-layout="stack"]`,
+      p = B.palette(settings);
+    return `
+${root}, ${root} body { overflow:hidden !important; }
+${root} { background:radial-gradient(ellipse at 50% 45%,${p.accent}08,transparent 65%),${p.bg} !important; min-height:100dvh !important; }
+${root} [data-bst-quote-path] { display:block !important; position:static !important; inset:auto !important; transform:none !important; translate:none !important; scale:none !important; filter:none !important; perspective:none !important; contain:none !important; content-visibility:visible !important; overflow:visible !important; width:auto !important; max-width:none !important; min-width:0 !important; height:auto !important; min-height:0 !important; max-height:none !important; margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important; box-shadow:none !important; background:transparent !important; }
+${root} [data-bst-quote-path] > :not([data-bst-quote-path]):not([data-bst-quote]):not(#bst-price-effects):not(#bst-quote-exit) { display:none !important; }
+${root} [data-bst-quote] { position:fixed !important; inset:auto !important; top:50% !important; left:50% !important; transform:translate(-50%,-50%) !important; display:flex !important; align-items:center !important; width:max-content !important; max-width:calc(100vw - 32px) !important; min-width:0 !important; height:auto !important; min-height:96px !important; max-height:calc(100dvh - 32px) !important; margin:0 !important; padding:16px !important; box-sizing:border-box !important; gap:24px !important; overflow:auto !important; background:var(--color-BasicBg) !important; border:0 !important; box-shadow:none !important; }
+${root} .ticker-wrap:has(> .flex .ticker-market-list) > :not(:first-child) { display:none !important; }
+${root} .ticker-wrap:has(> .flex .ticker-market-list) > :first-child { flex:none !important; margin:0 !important; gap:24px !important; }
+${root} .ticker-market-list, ${root} .ticker-market-list > .default-market-list-container { width:max-content !important; }
+${root} .default-market-list-container { display:flex !important; gap:24px !important; }
+${root} .default-market-list-container > :nth-child(n+3) { display:none !important; }
+${stack} { display:grid !important; grid-template-columns:repeat(2,minmax(0,1fr)) !important; align-items:center !important; justify-items:center !important; gap:0 !important; width:min(960px,calc(100vw - 48px)) !important; max-width:none !important; max-height:calc(100dvh - 120px) !important; min-height:0 !important; padding:8px 0 !important; overflow:auto !important; background:transparent !important; text-align:center !important; }
+${root} [data-bst-quote-flow] { display:contents !important; }
+${root} :is([data-bst-quote-layout="stack"],[data-bst-quote-flow]) > :not([data-bst-quote-flow]):not([data-bst-quote-part]) { display:none !important; }
+${stack} [data-bst-quote-part] { position:static !important; inset:auto !important; transform:none !important; height:auto !important; min-height:0 !important; max-width:100% !important; margin:0 !important; box-sizing:border-box !important; }
+${stack} [data-bst-quote-part="symbol"] { grid-column:1/-1 !important; grid-row:1 !important; display:flex !important; align-items:center !important; justify-content:center !important; flex:none !important; width:auto !important; gap:8px !important; margin-bottom:clamp(20px,4dvh,40px) !important; color:${p.text} !important; font-size:clamp(22px,3vw,36px) !important; font-weight:600 !important; letter-spacing:-.025em !important; line-height:1.3 !important; }
+${stack} [data-bst-quote-part="symbol"] :is(h1,h1 > :first-child,[data-studio-symbol]) { font-size:clamp(22px,3vw,36px) !important; font-weight:600 !important; line-height:1.3 !important; margin:0 !important; }
+${stack} [data-bst-quote-part="symbol"] :is(.bn-tag,.bn-bubble-content,small) { font-size:11px !important; font-weight:500 !important; line-height:20px !important; letter-spacing:.03em !important; }
+${stack} [data-bst-quote-part="symbol"] > img { width:32px !important; height:32px !important; margin:0 4px !important; }
+${stack} [data-bst-quote-part="value"] { grid-column:1/-1 !important; grid-row:2 !important; display:block !important; width:100% !important; padding:0 !important; font-size:clamp(48px,min(12vw,20dvh),160px) !important; font-weight:600 !important; line-height:1.08 !important; letter-spacing:-.055em !important; font-variant-numeric:tabular-nums !important; white-space:nowrap !important; text-align:center !important; }
+${stack} [data-bst-quote-part="change"] { grid-column:1/-1 !important; grid-row:3 !important; display:flex !important; align-items:center !important; justify-content:center !important; gap:12px !important; width:100% !important; margin-top:12px !important; margin-bottom:clamp(24px,5dvh,52px) !important; padding:0 !important; font-size:clamp(16px,1.8vw,24px) !important; font-weight:500 !important; line-height:1.5 !important; font-variant-numeric:tabular-nums !important; }
+${stack} [data-bst-quote-part="change"] > * { margin:0 !important; font-size:inherit !important; line-height:inherit !important; }
+${stack} :is([data-bst-quote-part="mark"],[data-bst-quote-part="index"]) { grid-row:4 !important; display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; gap:10px !important; width:min(240px,100%) !important; padding:0 clamp(12px,3vw,32px) !important; font-size:clamp(12px,1.2vw,14px) !important; line-height:1.4 !important; color:${p.muted} !important; font-variant-numeric:tabular-nums !important; }
+${stack} [data-bst-quote-part="mark"] { grid-column:1 !important; justify-self:end !important; }
+${stack} [data-bst-quote-part="index"] { grid-column:2 !important; justify-self:start !important; border-left:1px solid ${p.line} !important; }
+${stack} :is([data-bst-quote-part="mark"],[data-bst-quote-part="index"]) > :last-child { margin:0 !important; font-size:clamp(20px,2.3vw,28px) !important; font-weight:500 !important; line-height:1.3 !important; color:${p.text} !important; }
+${stack}:not(:has([data-bst-quote-part="index"])) [data-bst-quote-part="mark"] { grid-column:1/-1 !important; justify-self:center !important; }
+${root} #bst-quote-exit { all:unset !important; position:fixed !important; top:24px !important; right:24px !important; z-index:100002 !important; display:flex !important; align-items:center !important; gap:10px !important; padding:10px 14px !important; border:1px solid ${p.line} !important; border-radius:10px !important; background:${p.surface} !important; color:${p.text} !important; font:500 13px/20px ${B.FONTS[settings.font]} !important; cursor:pointer !important; }
+${root} #bst-quote-exit:hover { border-color:${p.accent} !important; background:${p.raised} !important; }
+${root} #bst-quote-exit:focus-visible { outline:2px solid ${p.accent} !important; outline-offset:4px !important; }
+${root} #bst-quote-exit:disabled { opacity:.6 !important; cursor:wait !important; }
+${root} #bst-quote-exit kbd { padding:0 5px !important; border:1px solid ${p.line} !important; border-radius:4px !important; color:${p.muted} !important; font:10px/18px ${B.FONTS.mono} !important; }
+@media(max-width:600px), (max-height:480px) { ${root} #bst-quote-exit { top:12px !important; right:12px !important; padding:8px 11px !important; font-size:12px !important; } }
+`;
+  }
+  function syncQuoteExit(active) {
+    if (!active) {
+      quoteExit?.remove();
+      quoteExit = null;
+      return;
+    }
+    if (!quoteExit?.isConnected) {
+      quoteExit = document.createElement("button");
+      quoteExit.id = "bst-quote-exit";
+      quoteExit.type = "button";
+      quoteExit.innerHTML = '<span aria-hidden="true">×</span><span class="bst-quote-exit-label"></span><kbd aria-hidden="true">Esc</kbd>';
+      quoteExit.addEventListener("click", exitQuote);
+      document.body.append(quoteExit);
+    }
+    quoteExit.setAttribute("aria-label", StudioI18n.t("退出仅报价模式"));
+    quoteExit.title = StudioI18n.t("退出仅报价模式 (Esc)");
+    const label = quoteExit.querySelector(".bst-quote-exit-label"), text = StudioI18n.t("退出仅报价");
+    if (label.textContent !== text) label.textContent = text;
+  }
+  async function exitQuote() {
+    const button = quoteExit;
+    if (button?.disabled) return;
+    if (button) button.disabled = true;
+    try {
+      await dispatchMutation("ticker", { layout: quoteReturnLayout });
+      requestAnimationFrame(() => cockpit?.$('[data-scene="ticker"]')?.focus());
+    } catch (error) {
+      if (button) {
+        button.disabled = false;
+        button.querySelector(".bst-quote-exit-label").textContent = StudioI18n.t("退出失败，请重试");
+      }
+      console.warn("Binance Studio:", error);
+    }
+  }
   function capture() {
     const result = new Map();
     for (const element of new Set(Object.values(panels))) {
@@ -216,6 +334,7 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
     animations.clear();
     if (
       !settings.motionEnabled ||
+      settings.layout === "ticker" ||
       matchMedia("(prefers-reduced-motion: reduce)").matches
     )
       return;
@@ -269,10 +388,12 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
     StudioI18n.setLanguage(base.language);
     route = W.routeContext(location.href);
     const effective = W.resolve(base, desktop, route);
+    if (base.layout !== "ticker") quoteReturnLayout = base.layout;
     settings = effective.settings;
     layout = effective.layout;
     room = effective.room;
     if (!settings.enabled) {
+      syncQuoteExit(false);
       clearButtonContrast();
       cancelAnimationFrame(contrastFrame);
       contrastFrame = 0;
@@ -285,6 +406,7 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
       animations.clear();
       document.documentElement.removeAttribute("data-bst-enabled");
       document.documentElement.removeAttribute("data-bst-skin");
+      document.documentElement.removeAttribute("data-bst-quote-only");
       style?.remove();
       cleanMarkers();
       signature = "";
@@ -301,6 +423,8 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
       (document.head || document.documentElement).append(style);
     }
     detectPanels();
+    const quoteOnly = isolateQuote();
+    syncQuoteExit(quoteOnly);
     if (route && document.body) {
       if (!priceEffects)
         priceEffects = new StudioPriceEffects({
@@ -326,16 +450,18 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
     const css =
       B.themeCSS(settings) +
       B.reactGridCSS(settings, gridAreas, layout) +
-      effectsCSS();
+      effectsCSS() +
+      quoteCSS();
     if (style.textContent !== css) style.textContent = css;
     repairButtonContrast();
-    if (route && document.body) {
+    if (route && document.body && !quoteOnly) {
       if (!cockpit)
         cockpit = new StudioCockpit({
           commit: (patch) => commit(patch),
           saveLayout: (tiles) => dispatchMutation("layout", { layout: tiles }),
           saveRoom,
           deleteRoom,
+          toggleQuote: () => dispatchMutation("ticker", { layout: "ticker" }),
         });
       cockpit.update({
         settings,
@@ -394,6 +520,13 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
   function deleteRoom() {
     return dispatchMutation("deleteRoom");
   }
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape" || event.repeat ||
+        !document.documentElement.hasAttribute("data-bst-quote-only")) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    exitQuote();
+  }, true);
   const observer = new MutationObserver((records) => {
     const structural = records.some((record) =>
       [...record.addedNodes, ...record.removedNodes].some(
@@ -401,6 +534,7 @@ ${root}[data-bst-spotlight] [data-bst-lit],${root}[data-bst-spotlight] [data-bst
           node.nodeType === 1 &&
           node !== style &&
           node.id !== "bst-cockpit" &&
+          node.id !== "bst-quote-exit" &&
           node.id !== "bst-price-effects" &&
           node.id !== "bst-price-effects-style" &&
           !node.closest?.("#bst-cockpit"),

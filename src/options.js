@@ -116,13 +116,16 @@
     });
     document.querySelectorAll("[data-inverse]").forEach((input) => {
       const forced =
-        settings.layout === "focus" &&
-        ["hideTrades", "hideMarkets", "hideAnnouncements"].includes(
-          input.dataset.inverse,
-        );
+        settings.layout === "ticker" ||
+        (settings.layout === "focus" &&
+          ["hideTrades", "hideMarkets", "hideAnnouncements"].includes(
+            input.dataset.inverse,
+          ));
       input.checked = !settings[input.dataset.inverse] && !forced;
       input.disabled = forced;
-      input.title = forced ? I.t("专注模式已隐藏此区域，切换布局后可单独调整") : "";
+      input.title = forced ? I.t(settings.layout === "ticker"
+        ? "仅报价模式已隐藏此区域，切换布局后可单独调整"
+        : "专注模式已隐藏此区域，切换布局后可单独调整") : "";
     });
     StudioPreview.render(settings);
     StudioPricePreview.render(settings);

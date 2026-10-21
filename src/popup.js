@@ -9,10 +9,12 @@
   let queue = Promise.resolve();
   let pending = 0;
   let previousLayout = "native";
+  let previousTickerLayout = "native";
   const status = document.getElementById("popup-save");
   const themes = document.getElementById("popup-themes");
   const enabled = document.getElementById("popup-enabled");
   const focus = document.getElementById("popup-focus");
+  const ticker = document.getElementById("popup-ticker");
   const language = document.getElementById("popup-language");
 
   for (const [id, preset] of Object.entries(B.PRESETS)) {
@@ -35,6 +37,7 @@
     language.value = settings.language;
     enabled.checked = settings.enabled;
     focus.checked = settings.layout === "focus";
+    ticker.checked = settings.layout === "ticker";
     themes.querySelectorAll("button").forEach((button) => {
       const name = I.t(B.PRESETS[button.dataset.preset].name);
       button.setAttribute("aria-label", name);
@@ -76,6 +79,10 @@
     if (focus.checked) previousLayout = settings.layout;
     commit({ layout: focus.checked ? "focus" : previousLayout });
   });
+  ticker.addEventListener("change", () => {
+    if (ticker.checked) previousTickerLayout = settings.layout;
+    commit({ layout: ticker.checked ? "ticker" : previousTickerLayout });
+  });
   document.getElementById("open-options").addEventListener("click", () => {
     if (B.isExtension()) chrome.runtime.openOptionsPage();
     else window.open("options.html", "_blank", "noopener");
@@ -93,6 +100,7 @@
       ready = true;
       enabled.disabled = false;
       focus.disabled = false;
+      ticker.disabled = false;
       language.disabled = false;
       render();
       status.textContent = I.t("已保存");

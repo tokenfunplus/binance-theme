@@ -8,6 +8,7 @@
   let native = false;
 
   el.innerHTML = `
+    <div class="preview-quote"><div class="preview-quote-symbol"><span>☆</span><b>И</b><strong>NEARUSDT</strong><small>永续</small></div><div class="preview-quote-price"><strong>5.188</strong><small>0.517 +11.09%</small></div><div class="preview-quote-stat"><span>标记价格</span><strong>5.189</strong></div><div class="preview-quote-stat"><span>指数价格</span><strong>5.190</strong></div></div>
     <div class="preview-pause" hidden></div>
     <div class="terminal-top"><div class="terminal-logo"><img src="assets/icon.svg" alt=""> BINANCE</div><div class="terminal-menu"><span>买币</span><span>行情</span><span class="selected">交易</span><span>合约</span><span>理财</span></div><div class="terminal-account">S</div></div>
     <div class="terminal-announcement"><span>✧</span><span>欢迎来到你的专属交易空间 · 让专注回归交易本身</span></div>

@@ -3,6 +3,18 @@
 
   // Mandarin source messages are stable keys for the English catalog.
   const messages = Object.freeze({
+  "仅报价": "Quote only",
+  "退出仅报价": "Exit quote only",
+  "退出仅报价模式": "Exit quote-only mode",
+  "退出仅报价模式 (Esc)": "Exit quote-only mode (Esc)",
+  "退出失败，请重试": "Couldn't exit. Try again",
+  "◌ 仅报价": "◌ Quote only",
+  "仅报价，按 Esc 返回": "Quote only, press Esc to return",
+  "只保留交易对与报价信息": "Keep just the pair and quote",
+  "启用仅报价模式": "Enable quote-only mode",
+  "只显示交易对、现价、涨跌、标记价格和指数价格": "Show only the pair, price, change, mark and index prices",
+  "仅报价模式已隐藏此区域，切换布局后可单独调整": "Quote-only mode hides this panel. Switch layouts to adjust it separately.",
+  "指数价格": "Index price",
   "自定义颜色": "Custom color",
   "关闭颜色选择器": "Close color picker",
   "常用配色": "Color palette",

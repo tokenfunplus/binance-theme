@@ -51,18 +51,24 @@
         <span id="selected-theme">经典石墨</span
         ><span id="popup-save" role="status">正在读取…</span>
       </div>
-      <div class="popup-focus">
-        <div>
-          <strong>专注模式</strong>
-          <p>收起市场、最近成交与公告</p>
+      <div class="popup-modes">
+        <div class="popup-focus">
+          <div>
+            <strong>专注模式</strong>
+            <p>收起市场、最近成交与公告</p>
+          </div>
+          <label class="switch"
+            ><input
+              id="popup-focus"
+              type="checkbox"
+              aria-label="启用专注模式"
+              disabled /><span></span
+          ></label>
         </div>
-        <label class="switch"
-          ><input
-            id="popup-focus"
-            type="checkbox"
-            aria-label="启用专注模式"
-            disabled /><span></span
-        ></label>
+        <div class="popup-focus">
+          <div><strong>仅报价</strong><p>只保留交易对与报价信息</p></div>
+          <label class="switch"><input id="popup-ticker" type="checkbox" aria-label="启用仅报价模式" disabled /><span></span></label>
+        </div>
       </div>
       <div class="popup-site-status" id="site-status" role="status">
         <span class="local-dot"></span>
